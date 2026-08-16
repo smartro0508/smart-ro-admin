@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
+import api from '../../utils/api.js';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login delay
-    setTimeout(() => {
+    setError('');
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      if (res.data.success) {
+        localStorage.setItem('adminToken', res.data.data.token);
+        onLogin(); // Proceed to dashboard
+      } else {
+        setError(res.data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Login failed. Please check credentials.');
+    } finally {
       setIsLoading(false);
-      onLogin(); // Proceed to dashboard
-    }, 1200);
+    }
   };
 
   return (
@@ -29,7 +40,6 @@ const Login = ({ onLogin }) => {
         {/* Logo Section */}
         <div className="flex flex-col items-center mb-8">
           <div className="w-48 h-auto mb-2 drop-shadow-sm transition-transform hover:scale-105 duration-300">
-            {/* Vite serves public folder assets from root */}
             <img src="/app-logo.png" alt="AURO Logo" className="w-full h-full object-contain" />
           </div>
         </div>
@@ -40,6 +50,7 @@ const Login = ({ onLogin }) => {
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Welcome Back</h2>
               <p className="text-sm text-gray-500 mt-2 font-medium">Please sign in to access your dashboard</p>
+              {error && <p className="text-sm text-red-500 mt-3 font-medium bg-red-50 p-2 rounded-lg">{error}</p>}
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -85,7 +96,6 @@ const Login = ({ onLogin }) => {
               <div className="flex items-center">
                 <input
                   id="remember-me"
-                  name="remember-me"
                   type="checkbox"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer transition-colors"
                 />
