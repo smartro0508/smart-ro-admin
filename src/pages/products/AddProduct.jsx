@@ -106,10 +106,7 @@ const AddProduct = () => {
                 <label className={labelClass}>Slug</label>
                 <input type="text" name="slug" className={inputClass} placeholder="e.g. smart-ro-water-purifier-plus" required />
               </div>
-              <div>
-                <label className={labelClass}>SKU (Stock Keeping Unit)</label>
-                <input type="text" name="sku" className={inputClass} placeholder="e.g. RO-PLUS-001" />
-              </div>
+
               <div className="md:col-span-2">
                 <label className={labelClass}>Short Description</label>
                 <textarea name="shortDescription" className={textareaClass} placeholder="Brief description for product cards..." rows={2}></textarea>

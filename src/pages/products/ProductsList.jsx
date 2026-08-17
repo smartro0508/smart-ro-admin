@@ -61,7 +61,6 @@ const ProductsList = () => {
       render: (row) => (
         <div>
           <p className="font-bold text-slate-800">{row.name}</p>
-          <p className="text-[12px] font-semibold text-slate-400 mt-0.5">SKU: {row.sku || 'N/A'}</p>
         </div>
       )
     },
@@ -144,7 +143,7 @@ const ProductsList = () => {
       <DataTable 
         columns={columns} 
         data={data} 
-        searchPlaceholder="Search products by name, SKU..." 
+        searchPlaceholder="Search products by name..." 
       />
 
       <ConfirmDialog 

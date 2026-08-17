@@ -138,7 +138,7 @@ const AddPurchase = () => {
               {items.map((item, index) => (
                 <div key={index} className="grid grid-cols-12 gap-3 items-center">
                   <div className="col-span-6">
-                    {index === 0 && <label className={labelClass}>Item Name / SKU</label>}
+                    {index === 0 && <label className={labelClass}>Item Name</label>}
                     <input type="text" value={item.itemName} onChange={e => handleItemChange(index, 'itemName', e.target.value)} className={inputClass} placeholder="Item description" required />
                   </div>
                   <div className="col-span-2">

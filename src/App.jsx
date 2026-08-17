@@ -22,7 +22,7 @@ import UsersList from './pages/users/UsersList';
 import AddUser from './pages/users/AddUser';
 import Settings from './pages/settings/Settings';
 import Login from './pages/auth/Login';
-
+import GalleryList from './pages/gallery/GalleryList';
 const Layout = ({ children, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -75,6 +75,7 @@ const App = () => {
           <Route path="/customers/new" element={<AddCustomer />} />
           <Route path="/contact" element={<ContactUsList />} />
           <Route path="/testimonials" element={<TestimonialsList />} />
+          <Route path="/gallery" element={<GalleryList />} />
           
           <Route path="/purchases" element={<PurchasesList />} />
           <Route path="/purchases/new" element={<AddPurchase />} />

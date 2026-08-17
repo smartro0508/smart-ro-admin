@@ -16,9 +16,16 @@ const CustomersList = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const currentDate = new Date();
+  const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
+  const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0];
+
+  const [fromDate, setFromDate] = useState(firstDay);
+  const [toDate, setToDate] = useState(lastDay);
+
   const fetchCustomers = async () => {
     try {
-      const res = await api.post('/customers/get-all');
+      const res = await api.post('/customers/get-all', { fromDate, toDate });
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
@@ -27,7 +34,7 @@ const CustomersList = () => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [fromDate, toDate]);
 
   const handleView = (item) => { setSelectedItem(item); setSidebarMode('view'); setIsSidebarOpen(true); };
   const handleEdit = (item) => { setSelectedItem(item); setSidebarMode('edit'); setIsSidebarOpen(true); };
@@ -121,10 +128,28 @@ const CustomersList = () => {
             <p className="text-[14px] font-medium text-slate-500 mt-1">Manage your client base</p>
           </div>
         </div>
-        <button onClick={handleAdd} className="py-3 px-5 rounded-[14px] font-bold text-[14px] bg-blue-600 text-white hover:bg-blue-700 shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
-          <Plus size={18} strokeWidth={2.5} />
-          Add Customer
-        </button>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+            <input 
+              type="date" 
+              value={fromDate} 
+              onChange={(e) => setFromDate(e.target.value)} 
+              className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
+            />
+            <span className="text-[11px] font-black text-slate-400">TO</span>
+            <input 
+              type="date" 
+              value={toDate} 
+              onChange={(e) => setToDate(e.target.value)} 
+              className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
+            />
+          </div>
+          <button onClick={handleAdd} className="py-2.5 px-5 rounded-[12px] font-bold text-[14px] bg-blue-600 text-white hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
+            <Plus size={18} strokeWidth={2.5} />
+            Add Customer
+          </button>
+        </div>
       </div>
       <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, phone..." />
       

@@ -92,7 +92,7 @@ const NewInvoice = () => {
       setItems([...items, {
         id: product.id,
         name: product.name,
-        code: product.sku || product.slug || `PRD${product.id}`,
+        code: product.slug || `PRD${product.id}`,
         hsn: product.hsn || '8471',
         qty: 1,
         price: Number(product.price) || 0,
@@ -328,7 +328,6 @@ const NewInvoice = () => {
                     <div key={p.id} onMouseDown={(e) => { e.preventDefault(); handleSelectProduct(p); }} className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 flex justify-between items-center transition-colors">
                       <div>
                         <p className="font-bold text-slate-800">{p.name}</p>
-                        <p className="text-[12px] font-medium text-slate-500 mt-0.5">SKU: {p.sku || 'N/A'}</p>
                       </div>
                       <span className="font-black text-blue-600">₹{Number(p.price).toLocaleString('en-IN')}</span>
                     </div>

@@ -126,7 +126,6 @@ const ProductDetails = () => {
                     )}
                   </div>
                   <h2 className="text-xl font-bold text-slate-900 mb-1">{product.name}</h2>
-                  <p className="text-sm font-semibold text-slate-400">SKU: {product.sku}</p>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4">

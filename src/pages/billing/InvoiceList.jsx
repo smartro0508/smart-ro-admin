@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Download, Eye, Trash2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import DataTable from '../../components/DataTable';
 import RightSidebar from '../../components/RightSidebar';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -14,9 +14,16 @@ const InvoiceList = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
+  const currentDate = new Date();
+  const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
+  const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString().split('T')[0];
+
+  const [fromDate, setFromDate] = useState(firstDay);
+  const [toDate, setToDate] = useState(lastDay);
+
   const fetchInvoices = async () => {
     try {
-      const res = await api.post('/invoices/get-all');
+      const res = await api.post('/invoices/get-all', { fromDate, toDate });
       if (res.data?.data) {
         const formattedData = res.data.data.map((inv, index) => {
           let customerObj = inv.customerData || {};
@@ -44,7 +51,7 @@ const InvoiceList = () => {
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [fromDate, toDate]);
 
   const handleDeleteClick = (dbId) => {
     setItemToDelete(dbId);
@@ -134,6 +141,9 @@ const InvoiceList = () => {
     if (typeof items === 'string') {
       try { items = JSON.parse(items); } catch (e) { items = []; }
     }
+    if (!Array.isArray(items)) {
+      items = [];
+    }
 
     const subtotal = Number(invoice.subtotal) || 0;
     const cgst = Number(invoice.cgst) || 0;
@@ -183,7 +193,8 @@ const InvoiceList = () => {
       const gst = Number(item.gst) || 0;
       const base = price * qty;
       const afterDiscount = base - discount;
-      const gstAmount = invoice.isGstApplied ? (afterDiscount * (gst / 100)) : 0;
+      const isGst = invoice.isGstApplied === true || invoice.isGstApplied === 'true' || invoice.isGstApplied === 1;
+      const gstAmount = isGst ? (afterDiscount * (gst / 100)) : 0;
       const amount = afterDiscount + gstAmount;
 
       return [
@@ -196,7 +207,7 @@ const InvoiceList = () => {
       ];
     });
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: 105,
       head: [['Item Description', 'HSN/SAC', 'Qty', 'Rate', 'GST', 'Amount']],
       body: tableBody,
@@ -243,7 +254,8 @@ const InvoiceList = () => {
       summaryY += 8;
     }
 
-    if (invoice.isGstApplied !== false) {
+    const isGstSummary = invoice.isGstApplied === true || invoice.isGstApplied === 'true' || invoice.isGstApplied === 1;
+    if (isGstSummary) {
       doc.text(`Total GST:`, 125, summaryY);
       doc.text(totalGst.toFixed(2), 190, summaryY, { align: 'right' });
       summaryY += 8;
@@ -363,6 +375,24 @@ const InvoiceList = () => {
         <div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900">Invoice List</h1>
           <p className="text-[14px] text-slate-500 font-medium mt-1">Manage and track your generated invoices.</p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
+            <input 
+              type="date" 
+              value={fromDate} 
+              onChange={(e) => setFromDate(e.target.value)} 
+              className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
+            />
+            <span className="text-[11px] font-black text-slate-400">TO</span>
+            <input 
+              type="date" 
+              value={toDate} 
+              onChange={(e) => setToDate(e.target.value)} 
+              className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
+            />
+          </div>
         </div>
       </div>
 
