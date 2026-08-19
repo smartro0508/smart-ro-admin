@@ -23,6 +23,9 @@ import AddUser from './pages/users/AddUser';
 import Settings from './pages/settings/Settings';
 import Login from './pages/auth/Login';
 import GalleryList from './pages/gallery/GalleryList';
+import ServicesList from './pages/services/ServicesList';
+import AddService from './pages/services/AddService';
+
 const Layout = ({ children, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -69,7 +72,12 @@ const App = () => {
           
           <Route path="/products" element={<ProductsList />} />
           <Route path="/products/new" element={<AddProduct />} />
+          <Route path="/products/edit/:id" element={<AddProduct />} />
           <Route path="/products/details/:id" element={<ProductDetails />} />
+          
+          <Route path="/services" element={<ServicesList />} />
+          <Route path="/services/new" element={<AddService />} />
+          <Route path="/services/edit/:id" element={<AddService />} />
           
           <Route path="/customers" element={<CustomersList />} />
           <Route path="/customers/new" element={<AddCustomer />} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Star, Edit, Trash2, CheckCircle, Tag, Settings, ShieldCheck, ListChecks } from 'lucide-react';
-import api from '../../utils/api.js';
+import api, { BASE_URL } from '../../utils/api.js';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -110,7 +110,7 @@ const ProductDetails = () => {
             <div className="flex flex-col md:flex-row gap-8">
               <div className="w-full md:w-[240px] flex-shrink-0">
                 <div className="aspect-square rounded-2xl border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
-                  <img src={product.mainImage ? `http://localhost:5000/uploads/images/${product.mainImage}` : "https://via.placeholder.com/300?text=RO"} alt={product.name} className="w-full h-full object-cover" />
+                  <img src={product.mainImage ? `${BASE_URL}/uploads/images/${product.mainImage}` : "https://via.placeholder.com/300?text=RO"} alt={product.name} className="w-full h-full object-cover" />
                 </div>
               </div>
               <div className="flex flex-col flex-1">
@@ -216,7 +216,7 @@ const ProductDetails = () => {
               <div className="grid grid-cols-2 gap-3">
                 {images.map((img, index) => (
                   <div key={index} className="aspect-square rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shadow-sm">
-                    <img src={`http://localhost:5000/uploads/images/${img}`} alt={`Gallery ${index}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                    <img src={`${BASE_URL}/uploads/images/${img}`} alt={`Gallery ${index}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                   </div>
                 ))}
               </div>

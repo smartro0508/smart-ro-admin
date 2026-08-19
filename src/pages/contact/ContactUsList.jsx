@@ -59,8 +59,9 @@ const ContactUsList = () => {
 
   const columns = [
     { key: 'sno', header: '#', align: 'center' },
-    { key: 'name', header: 'Name', render: (row) => <span className="font-bold text-slate-800">{row.name}</span> },
+    { key: 'fullName', header: 'Name', render: (row) => <span className="font-bold text-slate-800">{row.fullName}</span> },
     { key: 'email', header: 'Email' },
+    { key: 'phoneNumber', header: 'Phone', render: (row) => <span className="text-slate-600">{row.phoneNumber || 'N/A'}</span> },
     { key: 'subject', header: 'Subject', render: (row) => <span className="font-medium text-slate-700">{row.subject}</span> },
     { key: 'createdAt', header: 'Date', render: (row) => <span className="text-slate-500">{new Date(row.createdAt).toLocaleDateString()}</span> },
     { 
@@ -128,8 +129,13 @@ const ContactUsList = () => {
       >
         {selectedItem && (
           <div className="space-y-6">
-            <div><label className={labelClass}>Subject</label><p className="font-bold text-slate-900 text-lg">{selectedItem.subject}</p></div>
-            <div><label className={labelClass}>Sender</label><p className="text-slate-800 font-medium">{selectedItem.name}</p><p className="text-sm text-blue-600">{selectedItem.email}</p></div>
+            <div><label className={labelClass}>Subject</label><p className="font-bold text-slate-900 text-lg">{selectedItem.subject || 'N/A'}</p></div>
+            <div>
+              <label className={labelClass}>Sender</label>
+              <p className="text-slate-800 font-medium">{selectedItem.fullName}</p>
+              <p className="text-sm text-blue-600">{selectedItem.email}</p>
+              {selectedItem.phoneNumber && <p className="text-sm text-slate-500 mt-1">Phone: {selectedItem.phoneNumber}</p>}
+            </div>
             <div><label className={labelClass}>Date Received</label><p className="text-slate-700">{new Date(selectedItem.createdAt).toLocaleDateString()}</p></div>
             <div>
               <label className={labelClass}>Message</label>

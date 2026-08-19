@@ -17,7 +17,8 @@ import {
   LogOut,
   X,
   ChevronRight,
-  Image
+  Image,
+  Wrench
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
@@ -122,6 +123,11 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen, onLogout }) => {
           <NavGroup title="Products & Stock">
             <NavItem to="/products" icon={Package} label="All Products" onClick={closeMenu} />
             <NavItem to="/products/new" icon={PlusSquare} label="Add Product" onClick={closeMenu} />
+          </NavGroup>
+
+          <NavGroup title="Services">
+            <NavItem to="/services" icon={Wrench} label="All Services" onClick={closeMenu} />
+            <NavItem to="/services/new" icon={PlusSquare} label="Add Service" onClick={closeMenu} />
           </NavGroup>
 
           <NavGroup title="Directory">

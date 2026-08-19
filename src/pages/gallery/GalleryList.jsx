@@ -3,7 +3,7 @@ import { Trash2, Plus, UploadCloud } from 'lucide-react';
 import DataTable from '../../components/DataTable';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import RightSidebar from '../../components/RightSidebar';
-import api from '../../utils/api.js';
+import api, { BASE_URL } from '../../utils/api.js';
 
 const GalleryList = () => {
   const [data, setData] = useState([]);
@@ -88,7 +88,7 @@ const GalleryList = () => {
       render: (row) => (
         <div className="w-16 h-16 rounded-xl border border-slate-200 overflow-hidden bg-slate-50 flex items-center justify-center">
           <img 
-            src={`http://localhost:5000/uploads/images/${row.image}`} 
+            src={`${BASE_URL}/uploads/images/${row.image}`} 
             alt="Gallery" 
             className="w-full h-full object-cover"
           />
