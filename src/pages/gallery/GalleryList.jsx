@@ -7,6 +7,8 @@ import api, { BASE_URL } from '../../utils/api.js';
 
 const GalleryList = () => {
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -15,6 +17,8 @@ const GalleryList = () => {
   const fileInputRef = useRef(null);
 
   const fetchGallery = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
     try {
       const res = await api.post('/gallery/get-all');
       if (res.data?.data) {
@@ -25,6 +29,9 @@ const GalleryList = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
+      setIsLoading(false);
     }
   };
 
@@ -129,7 +136,7 @@ const GalleryList = () => {
         </button>
       </div>
 
-      <DataTable columns={columns} data={data} searchPlaceholder="Search images..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search images..."  isLoading={isFetching} />
 
       <RightSidebar 
         isOpen={isSidebarOpen} 

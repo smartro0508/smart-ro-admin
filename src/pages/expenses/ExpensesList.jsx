@@ -9,6 +9,7 @@ import api from '../../utils/api.js';
 const ExpensesList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sidebarMode, setSidebarMode] = useState('view');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -17,11 +18,14 @@ const ExpensesList = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchExpenses = async () => {
+    setIsFetching(true);
     try {
       const res = await api.post('/expenses/get-all');
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -131,7 +135,7 @@ const ExpensesList = () => {
           Log Expense
         </button>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search expenses by category, description..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search expenses by category, description..." isLoading={isFetching} />
       
       <RightSidebar 
         isOpen={isSidebarOpen} 

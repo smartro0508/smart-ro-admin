@@ -9,6 +9,8 @@ import api from '../../utils/api.js';
 const PurchasesList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [selectedPurchase, setSelectedPurchase] = useState(null);
@@ -22,11 +24,16 @@ const PurchasesList = () => {
   const [toDate, setToDate] = useState(lastDay);
 
   const fetchPurchases = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
     try {
       const res = await api.post('/purchases/get-all', { fromDate, toDate });
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
+      setIsLoading(false);
     }
   };
 
@@ -140,7 +147,7 @@ const PurchasesList = () => {
           </Link>
         </div>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search by PO number, supplier..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search by PO number, supplier..."  isLoading={isFetching} />
 
       {/* View Purchase Sidebar */}
       <RightSidebar 

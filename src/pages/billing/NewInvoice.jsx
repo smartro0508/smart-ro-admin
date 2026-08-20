@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Search, Plus, Trash2, Save, Printer, CreditCard,
-  User, Calendar, FileText, ChevronDown, ChevronUp, CheckCircle2
+  Search, Plus, Trash2, Save, CreditCard,
+  User, Calendar, FileText, ChevronDown, ChevronUp, CheckCircle2, Loader2
 } from 'lucide-react';
 import api from '../../utils/api.js';
 
@@ -35,13 +35,24 @@ const NewInvoice = () => {
     country: 'India'
   });
 
+  const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+
   useEffect(() => {
+    if (!customerSearch.trim()) {
+      setCustomers([]);
+      setIsSearchingCustomers(false);
+      return;
+    }
+    setIsSearchingCustomers(true);
     const searchCustomers = async () => {
       try {
         const res = await api.post('/customers/search', { q: customerSearch });
         if (res.data?.data) setCustomers(res.data.data);
       } catch (err) {
         console.error('Customer search error', err);
+      } finally {
+        setIsSearchingCustomers(false);
       }
     };
     const delayDebounce = setTimeout(() => { searchCustomers(); }, 300);
@@ -49,12 +60,20 @@ const NewInvoice = () => {
   }, [customerSearch]);
 
   useEffect(() => {
+    if (!productSearch.trim()) {
+      setProducts([]);
+      setIsSearchingProducts(false);
+      return;
+    }
+    setIsSearchingProducts(true);
     const searchProducts = async () => {
       try {
         const res = await api.post('/products/search', { q: productSearch });
         if (res.data?.data) setProducts(res.data.data);
       } catch (err) {
         console.error('Product search error', err);
+      } finally {
+        setIsSearchingProducts(false);
       }
     };
     const delayDebounce = setTimeout(() => { searchProducts(); }, 300);
@@ -197,44 +216,53 @@ const NewInvoice = () => {
     setItems(items.filter(i => i.id !== id));
   };
 
-  const inputClass = "w-full px-4 py-2.5 text-[14px] bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-800 placeholder-slate-400";
-  const labelClass = "block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2";
-  const cardClass = "bg-white rounded-[20px] p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)]";
+  const inputClass = "w-full px-4 py-3 text-[14px] bg-white border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium text-gray-800 placeholder-gray-400 shadow-sm";
+  const labelClass = "block text-[12px] font-semibold text-gray-600 uppercase tracking-wide mb-2";
+  const cardClass = "bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]";
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 h-full min-h-[85vh] max-w-[1600px] mx-auto pb-10">
+    <div className="flex flex-col gap-8 min-h-[85vh] max-w-[1600px] w-full min-w-0 mx-auto pb-12 font-sans">
       {/* Main Content - Left Side */}
-      <div className="flex-1 flex flex-col gap-6">
+      <div className="flex-1 min-w-0 flex flex-col gap-8">
 
         {/* Top Bar Settings */}
-        <div className={`${cardClass} flex flex-wrap gap-6 items-center justify-between`}>
+        <div className={`${cardClass} bg-gradient-to-r from-white to-gray-50 flex flex-wrap gap-6 items-center justify-between border-l-4 border-l-indigo-600 min-w-0`}>
           <div className="flex flex-wrap items-center gap-6">
-            <h1 className="text-2xl font-black tracking-tight text-slate-900">Create Invoice</h1>
+            <div>
+              <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Create Invoice</h1>
+              <p className="text-sm text-gray-500 font-medium mt-1">Fill out the details below to generate a new invoice</p>
+            </div>
 
-            <div className="h-8 w-px bg-slate-200 hidden md:block"></div>
+            <div className="h-12 w-px bg-gray-200 hidden md:block"></div>
 
-            <div className="flex items-center gap-5 text-[14px]">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-6 text-[14px]">
+              <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-gray-100 shadow-sm">
                 <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
-                  <FileText size={16} strokeWidth={2.5} />
+                  <FileText size={18} strokeWidth={2.5} />
                 </div>
-                <span className="font-bold text-slate-700 tracking-wide">{invoiceNumber}</span>
+                <div>
+                  <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Invoice No.</p>
+                  <span className="font-bold text-gray-800 tracking-wide">{invoiceNumber}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-gray-100 shadow-sm">
                 <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
-                  <Calendar size={16} strokeWidth={2.5} />
+                  <Calendar size={18} strokeWidth={2.5} />
                 </div>
-                <span className="font-bold text-slate-700">{new Date().toLocaleDateString('en-GB')}</span>
+                <div>
+                  <p className="text-[11px] text-gray-400 font-bold uppercase tracking-wider">Date</p>
+                  <span className="font-bold text-gray-800">{new Date().toLocaleDateString('en-GB')}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <span className="text-[12px] font-bold text-slate-500 uppercase tracking-wider">Type</span>
+          <div className="flex items-center gap-4">
+            <span className="text-[12px] font-bold text-gray-500 uppercase tracking-widest">Type</span>
             <select
               value={isGstApplied ? 'Tax Invoice' : 'Bill of Supply'}
               onChange={(e) => setIsGstApplied(e.target.value === 'Tax Invoice')}
-              className="text-[14px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 focus:ring-4 focus:ring-blue-500/10 outline-none cursor-pointer hover:bg-slate-100 transition-colors"
+              className="text-[14px] font-bold text-gray-800 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none cursor-pointer hover:bg-gray-50 transition-colors"
             >
               <option value="Tax Invoice">Tax Invoice</option>
               <option value="Bill of Supply">Bill of Supply</option>
@@ -243,24 +271,24 @@ const NewInvoice = () => {
         </div>
 
         {/* Customer Section */}
-        <div className={cardClass}>
+        <div className={`${cardClass} min-w-0`}>
           <div
-            className="flex items-center justify-between mb-4 cursor-pointer group"
+            className={`flex items-center justify-between cursor-pointer group ${isCustomerExpanded ? 'mb-6' : ''}`}
             onClick={() => setIsCustomerExpanded(!isCustomerExpanded)}
           >
-            <h2 className="text-[16px] font-extrabold text-slate-900 flex items-center gap-2.5">
-              <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-                <Plus size={18} strokeWidth={2.5} />
+            <h2 className="text-[18px] font-extrabold text-gray-900 flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-100">
+                <User size={20} strokeWidth={2.5} />
               </div>
-              Add New Customer
+              Customer Details
             </h2>
-            <div className="p-1.5 rounded-full hover:bg-slate-50 text-slate-400 group-hover:text-blue-600 transition-colors">
-              {isCustomerExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            <div className="p-2 rounded-full hover:bg-gray-50 text-gray-400 group-hover:text-indigo-600 transition-colors bg-white border border-transparent group-hover:border-gray-200 shadow-sm">
+              {isCustomerExpanded ? <ChevronUp size={20} /> : <Plus size={20} />}
             </div>
           </div>
 
           {isCustomerExpanded && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 border-t border-slate-100 pt-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 border-t border-gray-100 pt-6">
               <div><label className={labelClass}>Customer Name</label><input type="text" className={inputClass} value={customerForm.fullName} onChange={e => setCustomerForm({ ...customerForm, fullName: e.target.value })} required /></div>
               <div><label className={labelClass}>Phone Number</label><input type="text" className={inputClass} value={customerForm.phoneNumber} onChange={e => setCustomerForm({ ...customerForm, phoneNumber: e.target.value })} /></div>
               <div><label className={labelClass}>Email Address</label><input type="email" className={inputClass} value={customerForm.email} onChange={e => setCustomerForm({ ...customerForm, email: e.target.value })} /></div>
@@ -270,15 +298,15 @@ const NewInvoice = () => {
               <div><label className={labelClass}>Pincode</label><input type="text" className={inputClass} value={customerForm.pincode} onChange={e => setCustomerForm({ ...customerForm, pincode: e.target.value })} /></div>
               <div><label className={labelClass}>Country</label><input type="text" className={inputClass} value={customerForm.country} onChange={e => setCustomerForm({ ...customerForm, country: e.target.value })} /></div>
 
-              <div className="lg:col-span-3 flex justify-end mt-2">
+              <div className="lg:col-span-3 flex justify-end mt-4">
                 <button
                   type="button"
                   onClick={handleAddNewCustomer}
                   disabled={isSavingCustomer}
-                  className="w-full sm:w-auto py-2.5 px-6 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-[0_4px_20px_rgba(37,99,235,0.25)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
+                  className="w-full sm:w-auto py-3 px-8 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-[0_8px_20px_rgba(79,70,229,0.25)] hover:shadow-[0_8px_25px_rgba(79,70,229,0.35)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 transform hover:-translate-y-1"
                 >
-                  <Plus size={18} strokeWidth={2.5} />
-                  {isSavingCustomer ? 'Saving...' : 'Save as New Customer'}
+                  <Save size={18} strokeWidth={2.5} />
+                  {isSavingCustomer ? 'Saving...' : 'Save Customer Data'}
                 </button>
               </div>
             </div>
@@ -286,141 +314,149 @@ const NewInvoice = () => {
         </div>
 
         {/* Products Section */}
-        <div className="bg-white rounded-[20px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex-1 flex flex-col min-h-[350px] overflow-visible">
-          <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row items-center gap-4 bg-slate-50/50">
+        <div className="bg-white rounded-[24px] border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex-1 flex flex-col min-h-[400px] overflow-visible min-w-0">
+          <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row items-center gap-6 bg-gray-50/50 rounded-t-[24px]">
             <div className="relative w-full md:flex-1 z-20">
-              <Search size={18} className="absolute left-4 top-3.5 text-blue-400" />
+              <Search size={20} className="absolute left-4 top-3.5 text-indigo-400" />
               <input
                 type="text"
                 value={customerSearch}
                 onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDropdown(true); }}
                 onFocus={() => setShowCustomerDropdown(true)}
                 onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
-                className="w-full pl-11 pr-4 py-2.5 text-[14px] bg-blue-50/50 border border-blue-100 placeholder-blue-400 focus:bg-white text-blue-900 font-bold rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all shadow-sm"
+                className="w-full pl-12 pr-4 py-3 text-[14px] bg-white border border-gray-200 placeholder-gray-400 focus:bg-white text-gray-900 font-medium rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm"
                 placeholder="Search Existing Customer..."
               />
               {showCustomerDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] max-h-60 overflow-y-auto z-50">
-                  {filteredCustomers.length > 0 ? filteredCustomers.map(c => (
-                    <div key={c.id} onMouseDown={(e) => { e.preventDefault(); handleSelectCustomer(c); }} className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 transition-colors">
-                      <p className="font-bold text-slate-800">{c.fullName}</p>
-                      <p className="text-[12px] font-medium text-slate-500 mt-0.5">{c.phoneNumber} • {c.email}</p>
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto z-50 py-2">
+                  {isSearchingCustomers ? (
+                    <div className="px-5 py-4 flex items-center justify-center text-indigo-500">
+                      <Loader2 size={24} className="animate-spin" />
                     </div>
-                  )) : <div className="px-4 py-3 text-slate-500 font-medium text-[13px]">No matching customers found</div>}
+                  ) : filteredCustomers.length > 0 ? filteredCustomers.map(c => (
+                    <div key={c.id} onMouseDown={(e) => { e.preventDefault(); handleSelectCustomer(c); }} className="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 transition-colors">
+                      <p className="font-bold text-gray-800">{c.fullName}</p>
+                      <p className="text-[13px] font-medium text-gray-500 mt-1">{c.phoneNumber} • {c.email}</p>
+                    </div>
+                  )) : <div className="px-5 py-4 text-gray-500 font-medium text-[13px] text-center">No matching customers found</div>}
                 </div>
               )}
             </div>
 
             <div className="relative w-full md:flex-1 z-10">
-              <Search size={18} className="absolute left-4 top-3.5 text-slate-400" />
+              <Search size={20} className="absolute left-4 top-3.5 text-gray-400" />
               <input
                 type="text"
                 value={productSearch}
                 onChange={(e) => { setProductSearch(e.target.value); setShowProductDropdown(true); }}
                 onFocus={() => setShowProductDropdown(true)}
                 onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
-                placeholder="Search by Product Name, Code... (Alt + P)"
-                className="w-full pl-11 pr-4 py-2.5 text-[14px] bg-white border border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all shadow-sm font-medium text-slate-800 placeholder-slate-400"
+                placeholder="Search by Product Name, Code..."
+                className="w-full pl-12 pr-4 py-3 text-[14px] bg-white border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm font-medium text-gray-800 placeholder-gray-400"
               />
               {showProductDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] max-h-60 overflow-y-auto z-50">
-                  {filteredProducts.length > 0 ? filteredProducts.map(p => (
-                    <div key={p.id} onMouseDown={(e) => { e.preventDefault(); handleSelectProduct(p); }} className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-slate-50 last:border-0 flex justify-between items-center transition-colors">
-                      <div>
-                        <p className="font-bold text-slate-800">{p.name}</p>
-                      </div>
-                      <span className="font-black text-blue-600">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto z-50 py-2">
+                  {isSearchingProducts ? (
+                    <div className="px-5 py-4 flex items-center justify-center text-indigo-500">
+                      <Loader2 size={24} className="animate-spin" />
                     </div>
-                  )) : <div className="px-4 py-3 text-slate-500 font-medium text-[13px]">No products found</div>}
+                  ) : filteredProducts.length > 0 ? filteredProducts.map(p => (
+                    <div key={p.id} onMouseDown={(e) => { e.preventDefault(); handleSelectProduct(p); }} className="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 flex justify-between items-center transition-colors">
+                      <div>
+                        <p className="font-bold text-gray-800">{p.name}</p>
+                      </div>
+                      <span className="font-black text-indigo-600">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                    </div>
+                  )) : <div className="px-5 py-4 text-gray-500 font-medium text-[13px] text-center">No products found</div>}
                 </div>
               )}
             </div>
           </div>
 
           {selectedCustomer && (
-            <div className="px-5 py-3 bg-blue-50/50 border-b border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-[16px]">
+            <div className="px-6 py-4 bg-indigo-50/50 border-b border-indigo-100 flex items-center justify-between">
+              <div className="flex items-center gap-4 min-w-0">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-[18px] shadow-sm shrink-0">
                   {selectedCustomer.fullName?.charAt(0).toUpperCase()}
                 </div>
-                <div>
-                  <h3 className="font-bold text-slate-800 text-[14px]">{selectedCustomer.fullName}</h3>
-                  <p className="text-[12px] text-slate-500 font-medium">
+                <div className="min-w-0">
+                  <h3 className="font-bold text-gray-900 text-[15px] truncate">{selectedCustomer.fullName}</h3>
+                  <p className="text-[13px] text-gray-500 font-medium mt-0.5 truncate">
                     {selectedCustomer.phoneNumber} {selectedCustomer.city ? `• ${selectedCustomer.city}` : ''}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedCustomer(null)}
-                className="text-[12px] font-bold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-lg hover:bg-rose-100 transition-colors"
+                className="text-[13px] font-bold text-rose-600 bg-white border border-rose-200 px-4 py-2 rounded-xl hover:bg-rose-50 shadow-sm transition-all shrink-0 ml-4"
               >
-                Remove
+                Change
               </button>
             </div>
           )}
 
-          <div className="overflow-x-auto flex-1 relative z-0">
+          <div className="overflow-x-auto flex-1 relative z-0 min-w-0">
             <table className="w-full text-left text-[14px]">
-              <thead className="bg-white border-b border-slate-100 text-[11px] uppercase tracking-wider font-bold text-slate-500">
+              <thead className="bg-white border-b-2 border-gray-100 text-[12px] uppercase tracking-wider font-bold text-gray-400">
                 <tr>
-                  <th className="px-5 py-4 w-12 text-center">#</th>
-                  <th className="px-5 py-4">Item Details</th>
-                  <th className="px-4 py-4 w-32 text-center">Qty</th>
-                  <th className="px-4 py-4 text-right">Rate</th>
-                  <th className="px-4 py-4 text-right w-24">Disc</th>
-                  <th className="px-4 py-4 text-center">GST</th>
-                  <th className="px-5 py-4 text-right font-black text-slate-700">Amount</th>
-                  <th className="px-5 py-4 text-center w-14"></th>
+                  <th className="px-6 py-5 w-12 text-center">#</th>
+                  <th className="px-6 py-5">Item Details</th>
+                  <th className="px-5 py-5 w-36 text-center">Qty</th>
+                  <th className="px-5 py-5 text-right">Rate</th>
+                  <th className="px-5 py-5 text-right w-24">Disc</th>
+                  <th className="px-5 py-5 text-center">GST</th>
+                  <th className="px-6 py-5 text-right font-black text-gray-700">Amount</th>
+                  <th className="px-6 py-5 text-center w-16"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-50">
+              <tbody className="divide-y divide-gray-50">
                 {items.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-16 text-slate-400 font-medium">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
-                          <Search size={24} />
+                    <td colSpan="8" className="text-center py-24 text-gray-400 font-medium">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 shadow-inner">
+                          <Search size={32} />
                         </div>
-                        <p>No products added. Search and select products above to begin billing.</p>
+                        <p className="text-gray-500">No products added. Search and select products above to begin billing.</p>
                       </div>
                     </td>
                   </tr>
                 ) : items.map((item, index) => (
-                  <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
-                    <td className="px-5 py-4 text-center text-slate-400 font-medium">{index + 1}</td>
-                    <td className="px-5 py-4">
-                      <p className="font-bold text-slate-800">{item.name}</p>
-                      <p className="text-[12px] font-semibold text-slate-400 mt-0.5">Code: {item.code} • HSN: {item.hsn}</p>
+                  <tr key={item.id} className="hover:bg-gray-50/80 transition-colors group">
+                    <td className="px-6 py-5 text-center text-gray-400 font-medium">{index + 1}</td>
+                    <td className="px-6 py-5">
+                      <p className="font-bold text-gray-900">{item.name}</p>
+                      <p className="text-[12px] font-semibold text-gray-500 mt-1">Code: <span className="text-gray-400">{item.code}</span> • HSN: <span className="text-gray-400">{item.hsn}</span></p>
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center justify-center border border-slate-200 rounded-lg overflow-hidden w-24 mx-auto bg-white shadow-sm">
-                        <button onClick={() => handleItemChange(item.id, 'qty', (Number(item.qty) || 1) - 1)} className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold transition-colors">-</button>
+                    <td className="px-5 py-5">
+                      <div className="flex items-center justify-center border border-gray-200 rounded-xl overflow-hidden w-28 mx-auto bg-white shadow-sm">
+                        <button onClick={() => handleItemChange(item.id, 'qty', (Number(item.qty) || 1) - 1)} className="px-3.5 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold transition-colors border-r border-gray-200">-</button>
                         <input
                           type="number"
                           value={item.qty}
                           onChange={(e) => handleItemChange(item.id, 'qty', e.target.value === '' ? '' : parseInt(e.target.value))}
-                          className="w-10 text-center text-[13px] font-bold text-slate-800 py-1.5 border-x border-slate-200 focus:outline-none hide-arrows"
+                          className="w-10 text-center text-[13px] font-bold text-gray-900 py-2 focus:outline-none hide-arrows"
                         />
-                        <button onClick={() => handleItemChange(item.id, 'qty', (Number(item.qty) || 0) + 1)} className="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold transition-colors">+</button>
+                        <button onClick={() => handleItemChange(item.id, 'qty', (Number(item.qty) || 0) + 1)} className="px-3.5 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 font-bold transition-colors border-l border-gray-200">+</button>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right">
-                      <input type="number" value={item.price} onChange={(e) => handleItemChange(item.id, 'price', e.target.value === '' ? '' : Number(e.target.value))} className="w-20 text-right text-[14px] font-semibold text-slate-700 py-1.5 border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-lg px-2 hide-arrows outline-none transition-all bg-transparent" />
+                    <td className="px-5 py-5 text-right">
+                      <input type="number" value={item.price} onChange={(e) => handleItemChange(item.id, 'price', e.target.value === '' ? '' : Number(e.target.value))} className="w-24 text-right text-[14px] font-semibold text-gray-700 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:bg-white rounded-lg px-3 hide-arrows outline-none transition-all bg-transparent" />
                     </td>
-                    <td className="px-4 py-4 text-right">
-                      <input type="number" value={item.discount} onChange={(e) => handleItemChange(item.id, 'discount', e.target.value === '' ? '' : Number(e.target.value))} className="w-16 text-right text-[14px] font-semibold text-rose-500 py-1.5 border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-white rounded-lg px-2 hide-arrows outline-none transition-all bg-transparent" />
+                    <td className="px-5 py-5 text-right">
+                      <input type="number" value={item.discount} onChange={(e) => handleItemChange(item.id, 'discount', e.target.value === '' ? '' : Number(e.target.value))} className="w-20 text-right text-[14px] font-semibold text-rose-500 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:bg-white rounded-lg px-3 hide-arrows outline-none transition-all bg-transparent" />
                     </td>
-                    <td className="px-4 py-4 text-center">
-                      <span className="inline-flex px-2 py-1 bg-slate-100 text-slate-600 font-bold text-[12px] rounded-md">
+                    <td className="px-5 py-5 text-center">
+                      <span className="inline-flex px-3 py-1.5 bg-gray-100 text-gray-700 font-bold text-[12px] rounded-lg">
                         {item.gst}%
                       </span>
                     </td>
-                    <td className="px-5 py-4 text-right font-black text-slate-900 text-[15px]">
+                    <td className="px-6 py-5 text-right font-black text-gray-900 text-[16px]">
                       ₹{calculateItemAmount(item).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-5 py-4 text-center">
-                      <button onClick={() => handleRemove(item.id)} className="text-slate-300 hover:text-rose-500 transition-colors p-2 rounded-xl hover:bg-rose-50 opacity-0 group-hover:opacity-100">
-                        <Trash2 size={16} strokeWidth={2.5} />
+                    <td className="px-6 py-5 text-center">
+                      <button onClick={() => handleRemove(item.id)} className="text-gray-300 hover:text-rose-500 transition-colors p-2.5 rounded-xl hover:bg-rose-50 opacity-0 group-hover:opacity-100">
+                        <Trash2 size={18} strokeWidth={2.5} />
                       </button>
                     </td>
                   </tr>
@@ -432,83 +468,80 @@ const NewInvoice = () => {
       </div>
 
       {/* Right Side - Summary & Payment */}
-      <div className="xl:w-[400px] w-full flex flex-col gap-6">
+      <div className="lg:w-[420px] w-full flex flex-col gap-6 lg:self-end">
         {/* Invoice Summary */}
-        <div className="bg-white rounded-[24px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] p-7">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-[18px] font-extrabold tracking-tight text-slate-900">Summary</h2>
-            <div className="flex bg-slate-100 p-1 rounded-xl">
+        <div className="bg-gradient-to-b from-gray-900 to-gray-950 rounded-[28px] border border-gray-800 shadow-[0_20px_50px_rgba(0,0,0,0.2)] p-8 text-white relative overflow-hidden">
+          {/* Decorative background glow */}
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500 rounded-full blur-[80px] opacity-20 pointer-events-none"></div>
+
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <h2 className="text-[20px] font-black tracking-tight text-white">Summary</h2>
+            <div className="flex bg-gray-800/80 p-1.5 rounded-xl border border-gray-700 backdrop-blur-sm">
               <button
                 onClick={() => setIsGstApplied(true)}
-                className={`px-3 py-1.5 text-[12px] font-bold rounded-lg transition-all ${isGstApplied ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                className={`px-4 py-2 text-[12px] font-bold rounded-lg transition-all ${isGstApplied ? 'bg-white text-gray-900 shadow-md' : 'text-gray-400 hover:text-white'}`}>
                 With GST
               </button>
               <button
                 onClick={() => setIsGstApplied(false)}
-                className={`px-3 py-1.5 text-[12px] font-bold rounded-lg transition-all ${!isGstApplied ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                className={`px-4 py-2 text-[12px] font-bold rounded-lg transition-all ${!isGstApplied ? 'bg-white text-gray-900 shadow-md' : 'text-gray-400 hover:text-white'}`}>
                 No GST
               </button>
             </div>
           </div>
 
-          <div className="space-y-3.5 text-[14px]">
-            <div className="flex justify-between text-slate-500 font-medium">
+          <div className="space-y-4 text-[15px] relative z-10">
+            <div className="flex justify-between text-gray-400 font-medium">
               <span>Subtotal</span>
-              <span className="text-slate-800">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              <span className="text-white">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div className="flex justify-between text-slate-500 font-medium">
+            <div className="flex justify-between text-gray-400 font-medium">
               <span>Discount</span>
-              <span className="text-emerald-500 font-bold">- ₹{totalDiscount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              <span className="text-emerald-400 font-bold">- ₹{totalDiscount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div className="flex justify-between text-slate-800 font-bold pt-3 pb-1 border-t border-slate-100">
+            <div className="flex justify-between text-white font-bold pt-4 pb-2 border-t border-gray-800">
               <span>Taxable Amount</span>
               <span>₹{taxableAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
 
             {isGstApplied && (
-              <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2 my-2">
-                <div className="flex justify-between text-slate-500 font-semibold text-[13px]">
+              <div className="bg-gray-800/50 rounded-2xl p-5 border border-gray-700/50 space-y-3 my-3">
+                <div className="flex justify-between text-gray-400 font-semibold text-[13px]">
                   <span>CGST</span>
-                  <span className="text-slate-700">₹{cgst.toFixed(2)}</span>
+                  <span className="text-white">₹{cgst.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-slate-500 font-semibold text-[13px]">
+                <div className="flex justify-between text-gray-400 font-semibold text-[13px]">
                   <span>SGST</span>
-                  <span className="text-slate-700">₹{sgst.toFixed(2)}</span>
+                  <span className="text-white">₹{sgst.toFixed(2)}</span>
                 </div>
                 {igst > 0 && (
-                  <div className="flex justify-between text-slate-500 font-semibold text-[13px]">
+                  <div className="flex justify-between text-gray-400 font-semibold text-[13px]">
                     <span>IGST</span>
-                    <span className="text-slate-700">₹{igst.toFixed(2)}</span>
+                    <span className="text-white">₹{igst.toFixed(2)}</span>
                   </div>
                 )}
               </div>
             )}
 
-            <div className="flex justify-between text-slate-500 font-medium pt-1">
+            <div className="flex justify-between text-gray-400 font-medium pt-2">
               <span>Round Off</span>
               <span>₹{roundOff.toFixed(2)}</span>
             </div>
 
-            <div className="flex justify-between items-center pt-5 mt-4 border-t-2 border-slate-100">
-              <span className="text-[14px] font-bold text-slate-400 uppercase tracking-wider">Total Amount</span>
-              <span className="text-3xl font-black text-blue-600">₹{grandTotal.toLocaleString('en-IN')}</span>
+            <div className="flex justify-between items-center pt-6 mt-6 border-t-2 border-gray-800">
+              <span className="text-[14px] font-bold text-gray-500 uppercase tracking-widest">Total Amount</span>
+              <span className="text-4xl font-black text-white">₹{grandTotal.toLocaleString('en-IN')}</span>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4 mt-auto">
-          <button onClick={() => window.print()} className="col-span-1 py-4 px-4 rounded-[16px] font-bold text-[15px] bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-all border border-indigo-100 flex items-center justify-center gap-2.5">
-            <Printer size={18} strokeWidth={2.5} />
-            Print
-          </button>
-
-          <button onClick={handleSaveInvoice} disabled={isSavingInvoice} className="col-span-1 py-4 px-4 rounded-[16px] font-black text-[15px] bg-blue-600 text-white hover:bg-blue-700 shadow-[0_8px_24px_rgba(37,99,235,0.25)] hover:shadow-[0_8px_30px_rgba(37,99,235,0.35)] transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-0.5 disabled:opacity-50">
+        <div className="grid grid-cols-1 gap-4">
+          <button onClick={handleSaveInvoice} disabled={isSavingInvoice} className="col-span-1 py-4 px-4 rounded-[20px] font-black text-[15px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:shadow-[0_12px_30px_rgba(79,70,229,0.35)] transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-1 disabled:opacity-50">
             <CheckCircle2 size={20} strokeWidth={2.5} />
             {isSavingInvoice ? 'Saving...' : 'Save & Pay'}
           </button>
         </div>
-        <div className='h-1'></div>
       </div>
     </div>
   );

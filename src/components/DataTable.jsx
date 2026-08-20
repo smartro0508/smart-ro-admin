@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Filter, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
-const DataTable = ({ columns, data, searchPlaceholder = "Search..." }) => {
+const DataTable = ({ columns, data, searchPlaceholder = "Search...", isLoading = false }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -82,7 +82,16 @@ const DataTable = ({ columns, data, searchPlaceholder = "Search..." }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
-            {currentData.length === 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={columns.length} className="text-center py-20">
+                  <div className="flex flex-col items-center justify-center text-blue-600 gap-3">
+                    <Loader2 size={32} className="animate-spin" />
+                    <span className="text-sm font-semibold text-slate-500">Loading data...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : currentData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-16 text-slate-400 font-medium">
                   No data found matching your criteria.

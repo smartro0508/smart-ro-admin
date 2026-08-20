@@ -7,17 +7,24 @@ import api from '../../utils/api.js';
 
 const TestimonialsList = () => {
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
   const fetchTestimonials = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
     try {
       const res = await api.post('/testimonials/get-all');
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
+      setIsLoading(false);
     }
   };
 
@@ -133,7 +140,7 @@ const TestimonialsList = () => {
           </div>
         </div>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, comment..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, comment..."  isLoading={isFetching} />
       
       <RightSidebar 
         isOpen={isSidebarOpen} 

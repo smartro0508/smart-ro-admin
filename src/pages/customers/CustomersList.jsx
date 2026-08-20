@@ -9,6 +9,7 @@ import api from '../../utils/api.js';
 const CustomersList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sidebarMode, setSidebarMode] = useState('view');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -24,11 +25,14 @@ const CustomersList = () => {
   const [toDate, setToDate] = useState(lastDay);
 
   const fetchCustomers = async () => {
+    setIsFetching(true);
     try {
       const res = await api.post('/customers/get-all', { fromDate, toDate });
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -151,7 +155,7 @@ const CustomersList = () => {
           </button>
         </div>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, phone..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, phone..." isLoading={isFetching} />
       
       <RightSidebar 
         isOpen={isSidebarOpen} 

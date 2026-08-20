@@ -7,17 +7,24 @@ import api from '../../utils/api.js';
 
 const ContactUsList = () => {
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
   const fetchContacts = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
     try {
       const res = await api.post('/contact-us/get-all');
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
+      setIsLoading(false);
     }
   };
 
@@ -120,7 +127,7 @@ const ContactUsList = () => {
           </div>
         </div>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, subject..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, subject..."  isLoading={isFetching} />
       
       <RightSidebar 
         isOpen={isSidebarOpen} 

@@ -8,15 +8,22 @@ import api, { BASE_URL } from '../../utils/api.js';
 const ServicesList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
 
   const fetchServices = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
     try {
       const res = await api.post('/services/get-all');
       setData(res.data.data.map((item, index) => ({ ...item, sno: index + 1 })));
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
+      setIsLoading(false);
     }
   };
 
@@ -121,7 +128,7 @@ const ServicesList = () => {
         columns={columns}
         data={data}
         searchPlaceholder="Search services by name..."
-      />
+       isLoading={isFetching} />
 
       <ConfirmDialog
         isOpen={isConfirmOpen}

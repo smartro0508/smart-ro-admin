@@ -9,6 +9,8 @@ import api from '../../utils/api.js';
 
 const InvoiceList = () => {
   const [invoices, setInvoices] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
@@ -22,6 +24,8 @@ const InvoiceList = () => {
   const [toDate, setToDate] = useState(lastDay);
 
   const fetchInvoices = async () => {
+    setIsLoading(true);
+    setIsFetching(true);
     try {
       const res = await api.post('/invoices/get-all', { fromDate, toDate });
       if (res.data?.data) {
@@ -46,6 +50,9 @@ const InvoiceList = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
+      setIsLoading(false);
     }
   };
 
@@ -400,7 +407,7 @@ const InvoiceList = () => {
         columns={columns}
         data={invoices}
         searchPlaceholder="Search by Invoice ID or Customer..."
-      />
+       isLoading={isFetching} />
 
       {/* View Invoice Sidebar */}
       <RightSidebar 

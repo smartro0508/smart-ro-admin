@@ -9,6 +9,7 @@ import api from '../../utils/api.js';
 const UsersList = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sidebarMode, setSidebarMode] = useState('view');
   const [selectedItem, setSelectedItem] = useState(null);
@@ -17,6 +18,7 @@ const UsersList = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchAdmins = async () => {
+    setIsFetching(true);
     try {
       const res = await api.post('/admins/get-all').catch(() => null);
       if (res && res.data && res.data.data) {
@@ -24,6 +26,8 @@ const UsersList = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -116,7 +120,7 @@ const UsersList = () => {
           Add User
         </button>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, role..." />
+      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, role..." isLoading={isFetching} />
       
       <RightSidebar 
         isOpen={isSidebarOpen} 
