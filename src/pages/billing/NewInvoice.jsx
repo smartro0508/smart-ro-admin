@@ -135,6 +135,10 @@ const NewInvoice = () => {
       alert("Please add at least one item to the invoice.");
       return;
     }
+    if (Number(globalDiscount) > subtotal) {
+      alert("Discount amount cannot be greater than the invoice subtotal.");
+      return;
+    }
 
     setIsSavingInvoice(true);
     try {
@@ -181,18 +185,19 @@ const NewInvoice = () => {
   };
 
   const subtotal = items.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.qty) || 0)), 0);
-  const totalDiscount = Number(globalDiscount) || 0;
+  // Ensure totalDiscount does not exceed subtotal for calculation
+  const totalDiscount = Math.min(Number(globalDiscount) || 0, subtotal);
   const taxableAmount = subtotal - totalDiscount;
 
   const totalGstAmount = isGstApplied ? items.reduce((sum, item) => {
     const price = Number(item.price) || 0;
     const qty = Number(item.qty) || 0;
     const gst = Number(item.gst) || 0;
-    
+
     const itemSubtotal = price * qty;
     const itemProportion = subtotal > 0 ? (itemSubtotal / subtotal) : 0;
     const itemDiscount = totalDiscount * itemProportion;
-    
+
     const afterDiscount = itemSubtotal - itemDiscount;
     return sum + (afterDiscount * (gst / 100));
   }, 0) : 0;
@@ -495,13 +500,13 @@ const NewInvoice = () => {
               <span className="text-white">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
             <div className="flex justify-between items-center text-gray-400 font-medium">
-              <span>Discount</span>
+              <span>Discount Amount</span>
               <div className="flex items-center gap-1">
                 <span className="text-emerald-400 font-bold">- ₹</span>
-                <input 
-                  type="number" 
-                  value={globalDiscount} 
-                  onChange={(e) => setGlobalDiscount(e.target.value)} 
+                <input
+                  type="number"
+                  value={globalDiscount}
+                  onChange={(e) => setGlobalDiscount(e.target.value)}
                   placeholder="0.00"
                   className="w-24 text-right bg-transparent text-emerald-400 font-bold text-[15px] outline-none border-b border-emerald-400/30 focus:border-emerald-400 hide-arrows pb-0.5"
                 />
@@ -537,7 +542,7 @@ const NewInvoice = () => {
             </div>
 
             <div className="flex justify-between items-center pt-6 mt-6 border-t-2 border-gray-800">
-              <span className="text-[14px] font-bold text-gray-500 uppercase tracking-widest">Total Amount</span>
+              <span className="text-[14px] font-bold text-gray-500 uppercase tracking-widest">Final Payable Amount</span>
               <span className="text-4xl font-black text-white">₹{grandTotal.toLocaleString('en-IN')}</span>
             </div>
           </div>
