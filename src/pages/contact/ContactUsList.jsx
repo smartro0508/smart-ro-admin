@@ -32,14 +32,14 @@ const ContactUsList = () => {
     fetchContacts();
   }, []);
 
-  const handleView = (item) => { 
-    setSelectedItem(item); 
-    setIsSidebarOpen(true); 
+  const handleView = (item) => {
+    setSelectedItem(item);
+    setIsSidebarOpen(true);
   };
-  
-  const handleDeleteClick = (item) => { 
-    setItemToDelete(item); 
-    setIsConfirmOpen(true); 
+
+  const handleDeleteClick = (item) => {
+    setItemToDelete(item);
+    setIsConfirmOpen(true);
   };
 
   const confirmDelete = async () => {
@@ -66,21 +66,20 @@ const ContactUsList = () => {
 
   const columns = [
     { key: 'sno', header: '#', align: 'center' },
-    { key: 'fullName', header: 'Name', render: (row) => <span className="font-bold text-slate-800">{row.fullName}</span> },
-    { key: 'email', header: 'Email' },
-    { key: 'phoneNumber', header: 'Phone', render: (row) => <span className="text-slate-600">{row.phoneNumber || 'N/A'}</span> },
-    { key: 'subject', header: 'Subject', render: (row) => <span className="font-medium text-slate-700">{row.subject}</span> },
-    { key: 'createdAt', header: 'Date', render: (row) => <span className="text-slate-500">{new Date(row.createdAt).toLocaleDateString()}</span> },
-    { 
-      key: 'status', 
-      header: 'Status', 
+    { key: 'fullName', header: 'Name', render: (row) => <div className="font-bold text-slate-800 break-words">{row.fullName}</div> },
+    { key: 'email', header: 'Email', render: (row) => <div className="break-all text-slate-600">{row.email}</div> },
+    { key: 'phoneNumber', header: 'Phone', render: (row) => <span className="text-slate-600 whitespace-nowrap">{row.phoneNumber || 'N/A'}</span> },
+    { key: 'subject', header: 'Subject', render: (row) => <div className="font-medium text-slate-700 break-words">{row.subject}</div> },
+    { key: 'createdAt', header: 'Date', render: (row) => <span className="text-slate-500 whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString()}</span> },
+    {
+      key: 'status',
+      header: 'Status',
       align: 'center',
       render: (row) => {
         const isUnread = row.status === 'Active';
         return (
-          <span className={`inline-flex px-2.5 py-1 text-[12px] font-bold rounded-lg ${
-            isUnread ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600'
-          }`}>
+          <span className={`inline-flex px-2.5 py-1 text-[12px] font-bold rounded-lg ${isUnread ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600'
+            }`}>
             {isUnread ? 'Unread' : 'Read'}
           </span>
         );
@@ -115,7 +114,7 @@ const ContactUsList = () => {
   const labelClass = "block text-[12px] font-bold text-slate-600 mb-2";
 
   return (
-    <div className="flex flex-col h-full max-w-[1600px] mx-auto pb-10">
+    <div className="max-w-[1600px] mx-auto pb-10 pt-2">
       <div className={cardClass}>
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-2xl bg-blue-50 text-blue-600">
@@ -127,11 +126,11 @@ const ContactUsList = () => {
           </div>
         </div>
       </div>
-      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, subject..."  isLoading={isFetching} />
-      
-      <RightSidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
+      <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, subject..." isLoading={isFetching} />
+
+      <RightSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         title="Inquiry Details"
       >
         {selectedItem && (
@@ -153,8 +152,8 @@ const ContactUsList = () => {
           </div>
         )}
       </RightSidebar>
-      
-      <ConfirmDialog 
+
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={confirmDelete}

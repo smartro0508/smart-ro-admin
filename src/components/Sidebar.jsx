@@ -91,7 +91,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen, onLogout }) => {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-[280px] bg-gradient-to-br from-blue-50/95 via-white/95 to-indigo-50/95 backdrop-blur-2xl border-r border-indigo-100/50 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) lg:translate-x-0 lg:static lg:inset-auto flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
+        "fixed inset-y-0 left-0 z-50 w-[280px] shrink-0 bg-gradient-to-br from-blue-50/95 via-white/95 to-indigo-50/95 backdrop-blur-2xl border-r border-indigo-100/50 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) lg:translate-x-0 lg:static lg:inset-auto flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
 

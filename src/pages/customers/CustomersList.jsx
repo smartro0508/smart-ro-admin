@@ -121,7 +121,7 @@ const CustomersList = () => {
   const labelClass = "block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2";
 
   return (
-    <div className="flex flex-col h-full max-w-[1600px] mx-auto pb-10">
+    <div className="max-w-[1600px] mx-auto pb-10 pt-2">
       <div className={cardClass}>
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-2xl bg-blue-50 text-blue-600">

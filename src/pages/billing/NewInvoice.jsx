@@ -11,6 +11,7 @@ const NewInvoice = () => {
   const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [amountReceived, setAmountReceived] = useState('');
   const [isGstApplied, setIsGstApplied] = useState(true);
+  const [globalDiscount, setGlobalDiscount] = useState('');
   const [invoiceNumber, setInvoiceNumber] = useState(`INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`);
 
   // Auto-search state
@@ -173,24 +174,26 @@ const NewInvoice = () => {
   const calculateItemAmount = (item) => {
     const price = Number(item.price) || 0;
     const qty = Number(item.qty) || 0;
-    const discount = Number(item.discount) || 0;
     const gst = Number(item.gst) || 0;
     const base = price * qty;
-    const afterDiscount = base - discount;
-    const gstAmount = isGstApplied ? (afterDiscount * (gst / 100)) : 0;
-    return afterDiscount + gstAmount;
+    const gstAmount = isGstApplied ? (base * (gst / 100)) : 0;
+    return base + gstAmount;
   };
 
   const subtotal = items.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.qty) || 0)), 0);
-  const totalDiscount = items.reduce((sum, item) => sum + (Number(item.discount) || 0), 0);
+  const totalDiscount = Number(globalDiscount) || 0;
   const taxableAmount = subtotal - totalDiscount;
 
   const totalGstAmount = isGstApplied ? items.reduce((sum, item) => {
     const price = Number(item.price) || 0;
     const qty = Number(item.qty) || 0;
-    const discount = Number(item.discount) || 0;
     const gst = Number(item.gst) || 0;
-    const afterDiscount = (price * qty) - discount;
+    
+    const itemSubtotal = price * qty;
+    const itemProportion = subtotal > 0 ? (itemSubtotal / subtotal) : 0;
+    const itemDiscount = totalDiscount * itemProportion;
+    
+    const afterDiscount = itemSubtotal - itemDiscount;
     return sum + (afterDiscount * (gst / 100));
   }, 0) : 0;
 
@@ -403,7 +406,6 @@ const NewInvoice = () => {
                   <th className="px-6 py-5">Item Details</th>
                   <th className="px-5 py-5 w-36 text-center">Qty</th>
                   <th className="px-5 py-5 text-right">Rate</th>
-                  <th className="px-5 py-5 text-right w-24">Disc</th>
                   <th className="px-5 py-5 text-center">GST</th>
                   <th className="px-6 py-5 text-right font-black text-gray-700">Amount</th>
                   <th className="px-6 py-5 text-center w-16"></th>
@@ -442,9 +444,6 @@ const NewInvoice = () => {
                     </td>
                     <td className="px-5 py-5 text-right">
                       <input type="number" value={item.price} onChange={(e) => handleItemChange(item.id, 'price', e.target.value === '' ? '' : Number(e.target.value))} className="w-24 text-right text-[14px] font-semibold text-gray-700 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:bg-white rounded-lg px-3 hide-arrows outline-none transition-all bg-transparent" />
-                    </td>
-                    <td className="px-5 py-5 text-right">
-                      <input type="number" value={item.discount} onChange={(e) => handleItemChange(item.id, 'discount', e.target.value === '' ? '' : Number(e.target.value))} className="w-20 text-right text-[14px] font-semibold text-rose-500 py-2 border border-transparent hover:border-gray-200 focus:border-indigo-500 focus:bg-white rounded-lg px-3 hide-arrows outline-none transition-all bg-transparent" />
                     </td>
                     <td className="px-5 py-5 text-center">
                       <span className="inline-flex px-3 py-1.5 bg-gray-100 text-gray-700 font-bold text-[12px] rounded-lg">
@@ -495,9 +494,18 @@ const NewInvoice = () => {
               <span>Subtotal</span>
               <span className="text-white">₹{subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div className="flex justify-between text-gray-400 font-medium">
+            <div className="flex justify-between items-center text-gray-400 font-medium">
               <span>Discount</span>
-              <span className="text-emerald-400 font-bold">- ₹{totalDiscount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-emerald-400 font-bold">- ₹</span>
+                <input 
+                  type="number" 
+                  value={globalDiscount} 
+                  onChange={(e) => setGlobalDiscount(e.target.value)} 
+                  placeholder="0.00"
+                  className="w-24 text-right bg-transparent text-emerald-400 font-bold text-[15px] outline-none border-b border-emerald-400/30 focus:border-emerald-400 hide-arrows pb-0.5"
+                />
+              </div>
             </div>
             <div className="flex justify-between text-white font-bold pt-4 pb-2 border-t border-gray-800">
               <span>Taxable Amount</span>
