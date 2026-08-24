@@ -21,20 +21,7 @@ const NewInvoice = () => {
   const [productSearch, setProductSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
-  const [isCustomerExpanded, setIsCustomerExpanded] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-
-  // Customer Form state
-  const [customerForm, setCustomerForm] = useState({
-    fullName: 'Walk-in Customer',
-    phoneNumber: '',
-    email: '',
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
-    country: 'India'
-  });
 
   const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
@@ -87,23 +74,6 @@ const NewInvoice = () => {
     setShowCustomerDropdown(false);
   };
 
-  const [isSavingCustomer, setIsSavingCustomer] = useState(false);
-
-  const handleAddNewCustomer = async () => {
-    setIsSavingCustomer(true);
-    try {
-      await api.post('/customers/create', customerForm);
-      alert('Customer saved successfully!');
-      const searchRes = await api.post('/customers/search', { q: customerSearch }).catch(() => null);
-      if (searchRes?.data?.data) setCustomers(searchRes.data.data);
-    } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || 'Error saving customer');
-    } finally {
-      setIsSavingCustomer(false);
-    }
-  };
-
   const handleSelectProduct = (product) => {
     const existing = items.find(i => i.id === product.id);
     if (existing) {
@@ -146,7 +116,7 @@ const NewInvoice = () => {
         invoiceNumber: invoiceNumber,
         invoiceDate: new Date().toISOString().split('T')[0],
         type: isGstApplied ? 'Tax Invoice' : 'Bill of Supply',
-        customerData: selectedCustomer || customerForm,
+        customerData: selectedCustomer || { fullName: 'Walk-in Customer' },
         items,
         subtotal: Number(subtotal).toFixed(2),
         totalDiscount: Number(totalDiscount).toFixed(2),
@@ -164,7 +134,6 @@ const NewInvoice = () => {
       // Reset form
       setItems([]);
       setSelectedCustomer(null);
-      setCustomerForm({ fullName: 'Walk-in Customer', phoneNumber: '', email: '', address: '', city: '', state: '', pincode: '', country: 'India' });
       setInvoiceNumber(`INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`);
     } catch (err) {
       console.error(err);
@@ -276,49 +245,6 @@ const NewInvoice = () => {
               <option value="Bill of Supply">Bill of Supply</option>
             </select>
           </div>
-        </div>
-
-        {/* Customer Section */}
-        <div className={`${cardClass} min-w-0`}>
-          <div
-            className={`flex items-center justify-between cursor-pointer group ${isCustomerExpanded ? 'mb-6' : ''}`}
-            onClick={() => setIsCustomerExpanded(!isCustomerExpanded)}
-          >
-            <h2 className="text-[18px] font-extrabold text-gray-900 flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-100">
-                <User size={20} strokeWidth={2.5} />
-              </div>
-              Customer Details
-            </h2>
-            <div className="p-2 rounded-full hover:bg-gray-50 text-gray-400 group-hover:text-indigo-600 transition-colors bg-white border border-transparent group-hover:border-gray-200 shadow-sm">
-              {isCustomerExpanded ? <ChevronUp size={20} /> : <Plus size={20} />}
-            </div>
-          </div>
-
-          {isCustomerExpanded && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 border-t border-gray-100 pt-6">
-              <div><label className={labelClass}>Customer Name</label><input type="text" className={inputClass} value={customerForm.fullName} onChange={e => setCustomerForm({ ...customerForm, fullName: e.target.value })} required /></div>
-              <div><label className={labelClass}>Phone Number</label><input type="text" className={inputClass} value={customerForm.phoneNumber} onChange={e => setCustomerForm({ ...customerForm, phoneNumber: e.target.value })} /></div>
-              <div><label className={labelClass}>Email Address</label><input type="email" className={inputClass} value={customerForm.email} onChange={e => setCustomerForm({ ...customerForm, email: e.target.value })} /></div>
-              <div className="lg:col-span-3"><label className={labelClass}>Street Address</label><input type="text" className={inputClass} value={customerForm.address} onChange={e => setCustomerForm({ ...customerForm, address: e.target.value })} /></div>
-              <div><label className={labelClass}>City</label><input type="text" className={inputClass} value={customerForm.city} onChange={e => setCustomerForm({ ...customerForm, city: e.target.value })} /></div>
-              <div><label className={labelClass}>State</label><input type="text" className={inputClass} value={customerForm.state} onChange={e => setCustomerForm({ ...customerForm, state: e.target.value })} /></div>
-              <div><label className={labelClass}>Pincode</label><input type="text" className={inputClass} value={customerForm.pincode} onChange={e => setCustomerForm({ ...customerForm, pincode: e.target.value })} /></div>
-              <div><label className={labelClass}>Country</label><input type="text" className={inputClass} value={customerForm.country} onChange={e => setCustomerForm({ ...customerForm, country: e.target.value })} /></div>
-
-              <div className="lg:col-span-3 flex justify-end mt-4">
-                <button
-                  type="button"
-                  onClick={handleAddNewCustomer}
-                  disabled={isSavingCustomer}
-                  className="w-full sm:w-auto py-3 px-8 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-[0_8px_20px_rgba(79,70,229,0.25)] hover:shadow-[0_8px_25px_rgba(79,70,229,0.35)] transition-all disabled:opacity-50 flex items-center justify-center gap-2 transform hover:-translate-y-1"
-                >
-                  <Save size={18} strokeWidth={2.5} />
-                  {isSavingCustomer ? 'Saving...' : 'Save Customer Data'}
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Products Section */}
@@ -550,7 +476,7 @@ const NewInvoice = () => {
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 gap-4">
-          <button onClick={handleSaveInvoice} disabled={isSavingInvoice} className="col-span-1 py-4 px-4 rounded-[20px] font-black text-[15px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:shadow-[0_12px_30px_rgba(79,70,229,0.35)] transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-1 disabled:opacity-50">
+          <button onClick={handleSaveInvoice} disabled={isSavingInvoice} className="col-span-1 py-4 px-4 rounded-[10px] font-black text-[15px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:shadow-[0_12px_30px_rgba(79,70,229,0.35)] transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-1 disabled:opacity-50 cursor-pointer">
             <CheckCircle2 size={20} strokeWidth={2.5} />
             {isSavingInvoice ? 'Saving...' : 'Save & Pay'}
           </button>

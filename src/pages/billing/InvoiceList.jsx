@@ -333,7 +333,7 @@ const InvoiceList = () => {
 
     if (totalDiscount > 0) {
       doc.line(110, finalY - 4, 195, finalY - 4);
-      doc.setTextColor(...lightBlue);
+      doc.setTextColor(34, 197, 94); // Green color
       doc.text(`DISCOUNT -`, 150, finalY, { align: 'right' });
       doc.text(`Rs.${totalDiscount.toFixed(2)}`, 190, finalY, { align: 'right' });
       doc.setTextColor(50, 50, 50);
