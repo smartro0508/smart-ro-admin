@@ -72,6 +72,20 @@ const ServicesList = () => {
       )
     },
     {
+      key: 'servicecost',
+      header: 'Service Cost',
+      render: (row) => (
+        <span className="font-medium text-slate-700">₹{row.servicecost || '0'}</span>
+      )
+    },
+    {
+      key: 'serviceproductcost',
+      header: 'Product Cost',
+      render: (row) => (
+        <span className="font-medium text-slate-700">₹{row.serviceproductcost || '0'}</span>
+      )
+    },
+    {
       key: 'status',
       header: 'Status',
       align: 'center',

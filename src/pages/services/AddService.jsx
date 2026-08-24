@@ -57,7 +57,8 @@ const AddService = () => {
       const keypointsRaw = e.target.keypointsInput.value.split('\n').filter(Boolean);
       formData.set('keypoints', JSON.stringify(keypointsRaw));
 
-      if (formData.get('image') && formData.get('image').size === 0) {
+      const imageFile = formData.get('image');
+      if (!imageFile || imageFile.size === 0 || imageFile === 'null' || imageFile === 'undefined' || imageFile === '') {
         formData.delete('image');
       }
 
@@ -113,6 +114,17 @@ const AddService = () => {
               <div>
                 <label className={labelClass}>Description</label>
                 <textarea name="description" defaultValue={service?.description || ''} className={`${textareaClass} min-h-[160px]`} placeholder="Detailed service description..."></textarea>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className={labelClass}>Service Cost</label>
+                  <input type="number" step="0.01" name="servicecost" defaultValue={service?.servicecost || ''} className={inputClass} placeholder="e.g. 500" />
+                </div>
+                <div>
+                  <label className={labelClass}>Product Cost</label>
+                  <input type="number" step="0.01" name="serviceproductcost" defaultValue={service?.serviceproductcost || ''} className={inputClass} placeholder="e.g. 1500" />
+                </div>
               </div>
               
               <div>

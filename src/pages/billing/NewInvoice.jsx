@@ -19,12 +19,15 @@ const NewInvoice = () => {
   const [products, setProducts] = useState([]);
   const [customerSearch, setCustomerSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
+  const [serviceSearch, setServiceSearch] = useState('');
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
+  const [showServiceDropdown, setShowServiceDropdown] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+  const [isSearchingServices, setIsSearchingServices] = useState(false);
 
   useEffect(() => {
     if (!customerSearch.trim()) {
@@ -68,6 +71,29 @@ const NewInvoice = () => {
     return () => clearTimeout(delayDebounce);
   }, [productSearch]);
 
+  const [services, setServices] = useState([]);
+  
+  useEffect(() => {
+    if (!serviceSearch.trim()) {
+      setServices([]);
+      setIsSearchingServices(false);
+      return;
+    }
+    setIsSearchingServices(true);
+    const searchServices = async () => {
+      try {
+        const res = await api.post('/services/search', { q: serviceSearch });
+        if (res.data?.data) setServices(res.data.data);
+      } catch (err) {
+        console.error('Service search error', err);
+      } finally {
+        setIsSearchingServices(false);
+      }
+    };
+    const delayDebounce = setTimeout(() => { searchServices(); }, 300);
+    return () => clearTimeout(delayDebounce);
+  }, [serviceSearch]);
+
   const handleSelectCustomer = (customer) => {
     setSelectedCustomer(customer);
     setCustomerSearch('');
@@ -94,9 +120,56 @@ const NewInvoice = () => {
     setShowProductDropdown(false);
   };
 
+  const handleSelectService = (service) => {
+    let newItems = [...items];
+    const svcCost = Number(service.servicecost) || 0;
+    const prdCost = Number(service.serviceproductcost) || 0;
+
+    if (svcCost > 0 || (svcCost === 0 && prdCost === 0)) {
+      const existingSvc = newItems.find(i => i.id === `${service.id}_svc`);
+      if (existingSvc) {
+        existingSvc.qty += 1;
+      } else {
+        newItems.push({
+          id: `${service.id}_svc`,
+          name: `${service.servicename} (Service)`,
+          code: `SVC${service.id.substring(0,4)}`,
+          hsn: '9983', // Default SAC for services
+          qty: 1,
+          price: svcCost,
+          discount: 0,
+          gst: 18 // Default GST
+        });
+      }
+    }
+
+    if (prdCost > 0) {
+      const existingPrd = newItems.find(i => i.id === `${service.id}_prd`);
+      if (existingPrd) {
+        existingPrd.qty += 1;
+      } else {
+        newItems.push({
+          id: `${service.id}_prd`,
+          name: `${service.servicename} (Product)`,
+          code: `PRD${service.id.substring(0,4)}`,
+          hsn: '8471', // Default HSN for products
+          qty: 1,
+          price: prdCost,
+          discount: 0,
+          gst: 18 // Default GST
+        });
+      }
+    }
+
+    setItems(newItems);
+    setServiceSearch('');
+    setShowServiceDropdown(false);
+  };
+
   // Use API results directly instead of local filtering if searching
   const filteredCustomers = customerSearch ? customers : customers;
   const filteredProducts = productSearch ? products : products;
+  const filteredServices = serviceSearch ? services : services;
 
   const [isSavingInvoice, setIsSavingInvoice] = useState(false);
 
@@ -302,6 +375,35 @@ const NewInvoice = () => {
                       <span className="font-black text-indigo-600">₹{Number(p.price).toLocaleString('en-IN')}</span>
                     </div>
                   )) : <div className="px-5 py-4 text-gray-500 font-medium text-[13px] text-center">No products found</div>}
+                </div>
+              )}
+            </div>
+
+            <div className="relative w-full md:flex-1 z-10">
+              <Search size={20} className="absolute left-4 top-3.5 text-gray-400" />
+              <input
+                type="text"
+                value={serviceSearch}
+                onChange={(e) => { setServiceSearch(e.target.value); setShowServiceDropdown(true); }}
+                onFocus={() => setShowServiceDropdown(true)}
+                onBlur={() => setTimeout(() => setShowServiceDropdown(false), 200)}
+                placeholder="Search by Service Name..."
+                className="w-full pl-12 pr-4 py-3 text-[14px] bg-white border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm font-medium text-gray-800 placeholder-gray-400"
+              />
+              {showServiceDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto z-50 py-2">
+                  {isSearchingServices ? (
+                    <div className="px-5 py-4 flex items-center justify-center text-indigo-500">
+                      <Loader2 size={24} className="animate-spin" />
+                    </div>
+                  ) : filteredServices.length > 0 ? filteredServices.map(s => (
+                    <div key={s.id} onMouseDown={(e) => { e.preventDefault(); handleSelectService(s); }} className="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 flex justify-between items-center transition-colors">
+                      <div>
+                        <p className="font-bold text-gray-800">{s.servicename}</p>
+                      </div>
+                      <span className="font-black text-indigo-600">₹{((Number(s.servicecost) || 0) + (Number(s.serviceproductcost) || 0)).toLocaleString('en-IN')}</span>
+                    </div>
+                  )) : <div className="px-5 py-4 text-gray-500 font-medium text-[13px] text-center">No services found</div>}
                 </div>
               )}
             </div>

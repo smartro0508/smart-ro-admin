@@ -32,12 +32,12 @@ const InvoiceList = () => {
         const formattedData = res.data.data.map((inv, index) => {
           let customerObj = inv.customerData || {};
           while (typeof customerObj === 'string') {
-            try { 
-              const parsed = JSON.parse(customerObj); 
+            try {
+              const parsed = JSON.parse(customerObj);
               if (typeof parsed !== 'object' || parsed === null) break;
               customerObj = parsed;
-            } catch (e) { 
-              break; 
+            } catch (e) {
+              break;
             }
           }
           if (Array.isArray(customerObj) && customerObj.length > 0) {
@@ -170,7 +170,7 @@ const InvoiceList = () => {
     doc.setFontSize(32);
     doc.setFont('helvetica', 'bold');
     doc.text(isGstApplied ? 'TAX INVOICE' : 'INVOICE', 195, 30, { align: 'right' });
-    
+
     if (isGstApplied) {
       doc.setTextColor(50, 50, 50);
       doc.setFontSize(10);
@@ -181,18 +181,18 @@ const InvoiceList = () => {
     // Extract data
     let customerData = invoice.customerData || {};
     while (typeof customerData === 'string') {
-      try { 
-        const parsed = JSON.parse(customerData); 
+      try {
+        const parsed = JSON.parse(customerData);
         if (typeof parsed !== 'object' || parsed === null) break;
         customerData = parsed;
-      } catch (e) { 
-        break; 
+      } catch (e) {
+        break;
       }
     }
     if (Array.isArray(customerData) && customerData.length > 0) {
       customerData = customerData[0];
     }
-    
+
     let items = invoice.items || [];
     if (typeof items === 'string') {
       try { items = JSON.parse(items); } catch (e) { items = []; }
@@ -213,13 +213,13 @@ const InvoiceList = () => {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.text('Billing to:', 15, yPos);
-    
+
     yPos += 5;
     doc.setTextColor(30, 30, 30);
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text(customerData.fullName || invoice.customer || 'Client Name', 15, yPos);
-    
+
     yPos += 3;
     doc.setDrawColor(200, 200, 200);
     doc.line(15, yPos, 80, yPos); // underline
@@ -228,7 +228,7 @@ const InvoiceList = () => {
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(50, 50, 50);
-    
+
     if (customerData.phoneNumber) {
       doc.text(`P    : ${customerData.phoneNumber}`, 15, yPos);
       yPos += 5;
@@ -237,7 +237,7 @@ const InvoiceList = () => {
       doc.text(`E    : ${customerData.email}`, 15, yPos);
       yPos += 5;
     }
-    
+
     let fullAddr = customerData.address || '';
     if (customerData.city) fullAddr += (fullAddr ? `, ${customerData.city}` : customerData.city);
     if (customerData.state) fullAddr += (fullAddr ? `, ${customerData.state}` : customerData.state);
@@ -256,13 +256,13 @@ const InvoiceList = () => {
     doc.text('Invoice No', 130, yPos);
     doc.setFont('helvetica', 'normal');
     doc.text(`: ${invoice.id}`, 155, yPos);
-    
+
     yPos += 5;
     doc.setFont('helvetica', 'bold');
     doc.text('Date', 130, yPos);
     doc.setFont('helvetica', 'normal');
     doc.text(`: ${invoice.date}`, 155, yPos);
-    
+
     yPos += 12;
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
@@ -317,7 +317,7 @@ const InvoiceList = () => {
 
     // 6. Totals section
     doc.setFontSize(9);
-    
+
     doc.setFont('helvetica', 'normal');
     doc.text('SUB TOTAL -', 150, finalY, { align: 'right' });
     doc.text(`Rs.${subtotal.toFixed(2)}`, 190, finalY, { align: 'right' });
@@ -352,16 +352,16 @@ const InvoiceList = () => {
       const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
       const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
       const inWords = (n) => {
-          if ((n = n.toString()).length > 9) return 'overflow';
-          let nArray = ('000000000' + n).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
-          if (!nArray) return;
-          let str = '';
-          str += (nArray[1] != 0) ? (a[Number(nArray[1])] || b[nArray[1][0]] + ' ' + a[nArray[1][1]]) + 'Crore ' : '';
-          str += (nArray[2] != 0) ? (a[Number(nArray[2])] || b[nArray[2][0]] + ' ' + a[nArray[2][1]]) + 'Lakh ' : '';
-          str += (nArray[3] != 0) ? (a[Number(nArray[3])] || b[nArray[3][0]] + ' ' + a[nArray[3][1]]) + 'Thousand ' : '';
-          str += (nArray[4] != 0) ? (a[Number(nArray[4])] || b[nArray[4][0]] + ' ' + a[nArray[4][1]]) + 'Hundred ' : '';
-          str += (nArray[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(nArray[5])] || b[nArray[5][0]] + ' ' + a[nArray[5][1]]) : '';
-          return str.trim() === '' ? 'Zero' : str.trim() + ' Only';
+        if ((n = n.toString()).length > 9) return 'overflow';
+        let nArray = ('000000000' + n).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!nArray) return;
+        let str = '';
+        str += (nArray[1] != 0) ? (a[Number(nArray[1])] || b[nArray[1][0]] + ' ' + a[nArray[1][1]]) + 'Crore ' : '';
+        str += (nArray[2] != 0) ? (a[Number(nArray[2])] || b[nArray[2][0]] + ' ' + a[nArray[2][1]]) + 'Lakh ' : '';
+        str += (nArray[3] != 0) ? (a[Number(nArray[3])] || b[nArray[3][0]] + ' ' + a[nArray[3][1]]) + 'Thousand ' : '';
+        str += (nArray[4] != 0) ? (a[Number(nArray[4])] || b[nArray[4][0]] + ' ' + a[nArray[4][1]]) + 'Hundred ' : '';
+        str += (nArray[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(nArray[5])] || b[nArray[5][0]] + ' ' + a[nArray[5][1]]) : '';
+        return str.trim() === '' ? 'Zero' : str.trim() + ' Only';
       }
       return inWords(Math.round(num));
     };
@@ -372,7 +372,7 @@ const InvoiceList = () => {
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...lightBlue);
     doc.text('Total In Words Indian Rupee', 15, notesY);
-    
+
     doc.setTextColor(50, 50, 50);
     const amountInWords = numberToWords(grandTotal);
     doc.text(`${amountInWords}`, 15, notesY + 5);
@@ -403,8 +403,6 @@ const InvoiceList = () => {
     doc.setTextColor(30, 30, 30);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text('PAYMENT METHOD', 15, bottomY);
-    
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...lightBlue);
@@ -430,7 +428,7 @@ const InvoiceList = () => {
 
     doc.setDrawColor(30, 30, 30);
     doc.line(120, bottomY + 15, 185, bottomY + 15);
-    
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(30, 30, 30);
@@ -445,12 +443,12 @@ const InvoiceList = () => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.text('Thank you for contacting us! Our services:', 20, 267);
-    
+
     doc.setFont('helvetica', 'normal');
     const servicesText = 'Multi services & sales available : Building construction,water level controller,Ac,water purifier,fridge, washing machine, dish washer,cctv, UPS, solar power system, stabilizer, chimney,water heater,solar heater, plumbing, electrical, house cleaning ,home shifting, fabrication, automation, Lightings, Smart switches, Painting works,generators,Ro plants, softener etc...';
     const splitServices = doc.splitTextToSize(servicesText, 170);
     doc.text(splitServices, 20, 272);
-    
+
     doc.save(`${invoice.id}.pdf`);
   };
 
@@ -514,9 +512,9 @@ const InvoiceList = () => {
       align: 'center',
       render: (row) => (
         <div className="flex items-center justify-center gap-2 transition-opacity">
-          <button 
+          <button
             onClick={() => handleView(row)}
-            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
             title="View"
           >
             <Eye size={18} strokeWidth={2.5} />
@@ -547,20 +545,20 @@ const InvoiceList = () => {
           <h1 className="text-2xl font-black tracking-tight text-slate-900">Invoice List</h1>
           <p className="text-[14px] text-slate-500 font-medium mt-1">Manage and track your generated invoices.</p>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-            <input 
-              type="date" 
-              value={fromDate} 
-              onChange={(e) => setFromDate(e.target.value)} 
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
               className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
             />
             <span className="text-[11px] font-black text-slate-400">TO</span>
-            <input 
-              type="date" 
-              value={toDate} 
-              onChange={(e) => setToDate(e.target.value)} 
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
               className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
             />
           </div>
@@ -571,12 +569,12 @@ const InvoiceList = () => {
         columns={columns}
         data={invoices}
         searchPlaceholder="Search by Invoice ID or Customer..."
-       isLoading={isFetching} />
+        isLoading={isFetching} />
 
       {/* View Invoice Sidebar */}
-      <RightSidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
+      <RightSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         title="Invoice Details"
       >
         {selectedInvoice && (
@@ -598,14 +596,14 @@ const InvoiceList = () => {
                 <p className="text-[13px] text-slate-500 mt-1">
                   {(() => {
                     let cData = selectedInvoice.customerData || {};
-                    if (typeof cData === 'string') try { cData = JSON.parse(cData); } catch(e) {}
+                    if (typeof cData === 'string') try { cData = JSON.parse(cData); } catch (e) { }
                     return cData.phoneNumber || 'No phone number';
                   })()}
                 </p>
                 <p className="text-[13px] text-slate-500 mt-1">
                   {(() => {
                     let cData = selectedInvoice.customerData || {};
-                    if (typeof cData === 'string') try { cData = JSON.parse(cData); } catch(e) {}
+                    if (typeof cData === 'string') try { cData = JSON.parse(cData); } catch (e) { }
                     return cData.address || 'No address';
                   })()}
                 </p>
@@ -629,9 +627,9 @@ const InvoiceList = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="pt-4 border-t border-slate-100">
-              <button 
+              <button
                 onClick={() => { setIsSidebarOpen(false); handleDownload(selectedInvoice); }}
                 className="w-full py-3 px-4 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors"
               >
@@ -643,7 +641,7 @@ const InvoiceList = () => {
         )}
       </RightSidebar>
 
-      <ConfirmDialog 
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={confirmDelete}
