@@ -230,11 +230,11 @@ const InvoiceList = () => {
     doc.setTextColor(50, 50, 50);
 
     if (customerData.phoneNumber) {
-      doc.text(`P    : ${customerData.phoneNumber}`, 15, yPos);
+      doc.text(`${customerData.phoneNumber}`, 15, yPos);
       yPos += 5;
     }
     if (customerData.email) {
-      doc.text(`E    : ${customerData.email}`, 15, yPos);
+      doc.text(`${customerData.email}`, 15, yPos);
       yPos += 5;
     }
 
@@ -244,7 +244,7 @@ const InvoiceList = () => {
     if (customerData.pincode) fullAddr += (fullAddr ? ` - ${customerData.pincode}` : customerData.pincode);
 
     if (fullAddr) {
-      const splitAddr = doc.splitTextToSize(`A    : ${fullAddr}`, 80);
+      const splitAddr = doc.splitTextToSize(`${fullAddr}`, 80);
       doc.text(splitAddr, 15, yPos);
     }
 
@@ -278,9 +278,16 @@ const InvoiceList = () => {
       const gstAmount = isGstApplied ? (base * (gst / 100)) : 0;
       const amount = base + gstAmount;
 
+      let itemName = item.name || '';
+      if (item.description) {
+        itemName += `\n${item.description}`;
+      } else if (item.product?.description) {
+        itemName += `\n${item.product.description}`;
+      }
+
       return [
         (idx + 1).toString().padStart(2, '0'),
-        item.name.toUpperCase(),
+        itemName.toLowerCase(),
         `Rs.${price.toFixed(2)}`,
         qty.toString(),
         `Rs.${amount.toFixed(2)}`
@@ -392,24 +399,29 @@ const InvoiceList = () => {
     doc.text('Terms & Conditions', 15, notesY);
     doc.setTextColor(50, 50, 50);
     doc.setFont('helvetica', 'normal');
-    const splitTerms = doc.splitTextToSize('warranty not applicable for any broken sapre parts', 100);
+    const splitTerms = doc.splitTextToSize(invoice.termsnotes || 'one year warranty', 100);
     doc.text(splitTerms, 15, notesY + 5);
 
-    // 7. Bottom Row Block (Payment on Left, Signature on Right)
     let bottomY = notesY + 20;
     if (bottomY > 230) bottomY = 230;
 
     // LEFT SIDE
     doc.setTextColor(30, 30, 30);
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
+    
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...lightBlue);
-    doc.text('STATUS :', 15, bottomY + 6);
+    doc.text('PAYMENT METHOD :', 15, bottomY);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
-    doc.text(` PAID`, 30, bottomY + 6);
+    doc.text(` ${invoice.paymentmethod || 'UPI'}`, 45, bottomY);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...lightBlue);
+    doc.text('PAYMENT STATUS :', 15, bottomY + 6);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text(` ${(invoice.paymentstatus || 'PAID').toUpperCase()}`, 45, bottomY + 6);
 
     // RIGHT SIDE (Signature & Seal)
     if (sigImg) {

@@ -78,7 +78,7 @@ const CustomersList = () => {
       } else {
         await api.post('/customers/create', payload);
       }
-      
+
       await fetchCustomers();
       setIsSidebarOpen(false);
     } catch (err) {
@@ -92,8 +92,8 @@ const CustomersList = () => {
   const columns = [
     { key: 'sno', header: '#', align: 'center' },
     { key: 'fullName', header: 'Customer Name', render: (row) => <span className="font-bold text-slate-800">{row.fullName}</span> },
-    { key: 'email', header: 'Email' },
-    { key: 'phoneNumber', header: 'Phone' },
+    { key: 'email', header: 'Email', render: (row) => <span className="text-slate-600">{row.email || '-'}</span> },
+    { key: 'phoneNumber', header: 'Phone', render: (row) => <span className="text-slate-600">{row.phoneNumber || '-'}</span> },
     { key: 'city', header: 'City', render: (row) => <span className="text-slate-600">{row.city || '-'}</span> },
     { key: 'state', header: 'State', render: (row) => <span className="text-slate-600">{row.state || '-'}</span> },
     {
@@ -132,20 +132,20 @@ const CustomersList = () => {
             <p className="text-[14px] font-medium text-slate-500 mt-1">Manage your client base</p>
           </div>
         </div>
-        
+
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
-            <input 
-              type="date" 
-              value={fromDate} 
-              onChange={(e) => setFromDate(e.target.value)} 
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
               className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
             />
             <span className="text-[11px] font-black text-slate-400">TO</span>
-            <input 
-              type="date" 
-              value={toDate} 
-              onChange={(e) => setToDate(e.target.value)} 
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
               className="bg-transparent border-none text-[13px] font-bold text-slate-700 focus:ring-0 cursor-pointer px-2 py-1 outline-none"
             />
           </div>
@@ -156,10 +156,10 @@ const CustomersList = () => {
         </div>
       </div>
       <DataTable columns={columns} data={data} searchPlaceholder="Search by name, email, phone..." isLoading={isFetching} />
-      
-      <RightSidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
+
+      <RightSidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         title={sidebarMode === 'view' ? 'Customer Details' : 'Edit Customer'}
       >
         {sidebarMode === 'view' && selectedItem ? (
@@ -167,7 +167,7 @@ const CustomersList = () => {
             <div><label className={labelClass}>Customer Name</label><p className="font-bold text-slate-800 text-lg">{selectedItem.fullName}</p></div>
             <div><label className={labelClass}>Phone</label><p className="text-slate-700">{selectedItem.phoneNumber || '-'}</p></div>
             <div><label className={labelClass}>Email</label><p className="text-slate-700">{selectedItem.email}</p></div>
-            
+
             <div className="pt-4 border-t border-slate-100">
               <label className={labelClass}>Address Information</label>
               <div className="bg-slate-50 p-4 rounded-xl space-y-2 mt-2">
@@ -184,7 +184,7 @@ const CustomersList = () => {
             <div><label className={labelClass}>Customer Name</label><input type="text" name="fullName" className={inputClass} defaultValue={selectedItem?.fullName || ''} required /></div>
             <div><label className={labelClass}>Phone Number</label><input type="text" name="phoneNumber" className={inputClass} defaultValue={selectedItem?.phoneNumber || ''} /></div>
             <div><label className={labelClass}>Email Address</label><input type="email" name="email" className={inputClass} defaultValue={selectedItem?.email || ''} required /></div>
-            
+
             <div><label className={labelClass}>Street Address</label><input type="text" name="address" className={inputClass} defaultValue={selectedItem?.address || ''} /></div>
             <div className="grid grid-cols-2 gap-4">
               <div><label className={labelClass}>City</label><input type="text" name="city" className={inputClass} defaultValue={selectedItem?.city || ''} /></div>
@@ -201,8 +201,8 @@ const CustomersList = () => {
           </form>
         )}
       </RightSidebar>
-      
-      <ConfirmDialog 
+
+      <ConfirmDialog
         isOpen={isConfirmOpen}
         onClose={() => setIsConfirmOpen(false)}
         onConfirm={confirmDelete}

@@ -12,7 +12,7 @@ const NewInvoice = () => {
   const [amountReceived, setAmountReceived] = useState('');
   const [isGstApplied, setIsGstApplied] = useState(true);
   const [globalDiscount, setGlobalDiscount] = useState('');
-  const [invoiceNumber, setInvoiceNumber] = useState(`INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`);
+  const [invoiceNumber, setInvoiceNumber] = useState('Auto-generated');
 
   // Auto-search state
   const [customers, setCustomers] = useState([]);
@@ -59,7 +59,7 @@ const NewInvoice = () => {
     setIsSearchingProducts(true);
     const searchProducts = async () => {
       try {
-        const res = await api.post('/products/search', { q: productSearch });
+        const res = await api.post('/invoice-products/search', { q: productSearch });
         if (res.data?.data) setProducts(res.data.data);
       } catch (err) {
         console.error('Product search error', err);
@@ -82,7 +82,7 @@ const NewInvoice = () => {
     setIsSearchingServices(true);
     const searchServices = async () => {
       try {
-        const res = await api.post('/services/search', { q: serviceSearch });
+        const res = await api.post('/invoice-services/search', { q: serviceSearch });
         if (res.data?.data) setServices(res.data.data);
       } catch (err) {
         console.error('Service search error', err);
@@ -107,8 +107,9 @@ const NewInvoice = () => {
     } else {
       setItems([...items, {
         id: product.id,
-        name: product.name,
-        code: product.slug || `PRD${product.id}`,
+        name: product.productname || product.name,
+        description: product.description || '',
+        code: product.slug || `PRD${String(product.id).substring(0,4)}`,
         hsn: product.hsn || '8471',
         qty: 1,
         price: Number(product.price) || 0,
@@ -133,6 +134,7 @@ const NewInvoice = () => {
         newItems.push({
           id: `${service.id}_svc`,
           name: `${service.servicename} (Service)`,
+          description: service.description || '',
           code: `SVC${service.id.substring(0,4)}`,
           hsn: '9983', // Default SAC for services
           qty: 1,
@@ -151,6 +153,7 @@ const NewInvoice = () => {
         newItems.push({
           id: `${service.id}_prd`,
           name: `${service.servicename} (Product)`,
+          description: service.description || '',
           code: `PRD${service.id.substring(0,4)}`,
           hsn: '8471', // Default HSN for products
           qty: 1,
@@ -186,7 +189,6 @@ const NewInvoice = () => {
     setIsSavingInvoice(true);
     try {
       const payload = {
-        invoiceNumber: invoiceNumber,
         invoiceDate: new Date().toISOString().split('T')[0],
         type: isGstApplied ? 'Tax Invoice' : 'Bill of Supply',
         customerData: selectedCustomer || { fullName: 'Walk-in Customer' },
@@ -199,7 +201,10 @@ const NewInvoice = () => {
         sgst: Number(sgst).toFixed(2),
         igst: Number(igst).toFixed(2),
         roundOff: Number(roundOff).toFixed(2),
-        grandTotal: Number(grandTotal).toFixed(2)
+        grandTotal: Number(grandTotal).toFixed(2),
+        paymentmethod: paymentMethod || 'UPI',
+        paymentstatus: amountReceived && Number(amountReceived) < grandTotal ? 'Pending' : 'Paid',
+        termsnotes: 'one year warranty'
       };
 
       await api.post('/invoices/create', payload);
@@ -207,7 +212,7 @@ const NewInvoice = () => {
       // Reset form
       setItems([]);
       setSelectedCustomer(null);
-      setInvoiceNumber(`INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`);
+      setInvoiceNumber('Auto-generated');
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || 'Error creating invoice');
@@ -266,9 +271,9 @@ const NewInvoice = () => {
     setItems(items.filter(i => i.id !== id));
   };
 
-  const inputClass = "w-full px-4 py-3 text-[14px] bg-white border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium text-gray-800 placeholder-gray-400 shadow-sm";
-  const labelClass = "block text-[12px] font-semibold text-gray-600 uppercase tracking-wide mb-2";
-  const cardClass = "bg-white rounded-2xl p-6 md:p-8 border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]";
+  const inputClass = "w-full px-4 py-2.5 text-[14px] bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-slate-800 placeholder-slate-400 shadow-sm";
+  const labelClass = "block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2";
+  const cardClass = "bg-white rounded-xl p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden";
 
   return (
     <div className="flex flex-col gap-8 min-h-[85vh] max-w-[1600px] w-full min-w-0 mx-auto pb-12 font-sans">
@@ -276,7 +281,7 @@ const NewInvoice = () => {
       <div className="flex-1 min-w-0 flex flex-col gap-8">
 
         {/* Top Bar Settings */}
-        <div className={`${cardClass} bg-gradient-to-r from-white to-gray-50 flex flex-wrap gap-6 items-center justify-between border-l-4 border-l-indigo-600 min-w-0`}>
+        <div className={`${cardClass} bg-white flex flex-wrap gap-6 items-center justify-between border-t-4 border-t-blue-600 min-w-0`}>
           <div className="flex flex-wrap items-center gap-6">
             <div>
               <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Create Invoice</h1>
@@ -286,8 +291,8 @@ const NewInvoice = () => {
             <div className="h-12 w-px bg-gray-200 hidden md:block"></div>
 
             <div className="flex items-center gap-6 text-[14px]">
-              <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-gray-100 shadow-sm">
-                <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+              <div className="flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm">
+                <div className="p-2 rounded-lg bg-white text-blue-600 shadow-sm border border-slate-100">
                   <FileText size={18} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -295,8 +300,8 @@ const NewInvoice = () => {
                   <span className="font-bold text-gray-800 tracking-wide">{invoiceNumber}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-xl border border-gray-100 shadow-sm">
-                <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+              <div className="flex items-center gap-3 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm">
+                <div className="p-2 rounded-lg bg-white text-blue-600 shadow-sm border border-slate-100">
                   <Calendar size={18} strokeWidth={2.5} />
                 </div>
                 <div>
@@ -359,22 +364,22 @@ const NewInvoice = () => {
                 onFocus={() => setShowProductDropdown(true)}
                 onBlur={() => setTimeout(() => setShowProductDropdown(false), 200)}
                 placeholder="Search by Product Name, Code..."
-                className="w-full pl-12 pr-4 py-3 text-[14px] bg-white border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm font-medium text-gray-800 placeholder-gray-400"
+                className="w-full pl-12 pr-4 py-2.5 text-[14px] bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all shadow-sm font-medium text-slate-800 placeholder-slate-400"
               />
               {showProductDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto z-50 py-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50 py-2">
                   {isSearchingProducts ? (
-                    <div className="px-5 py-4 flex items-center justify-center text-indigo-500">
+                    <div className="px-5 py-4 flex items-center justify-center text-blue-500">
                       <Loader2 size={24} className="animate-spin" />
                     </div>
                   ) : filteredProducts.length > 0 ? filteredProducts.map(p => (
-                    <div key={p.id} onMouseDown={(e) => { e.preventDefault(); handleSelectProduct(p); }} className="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 flex justify-between items-center transition-colors">
+                    <div key={p.id} onMouseDown={(e) => { e.preventDefault(); handleSelectProduct(p); }} className="px-5 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 flex justify-between items-center transition-colors">
                       <div>
-                        <p className="font-bold text-gray-800">{p.name}</p>
+                        <p className="font-bold text-slate-800">{p.productname || p.name}</p>
                       </div>
-                      <span className="font-black text-indigo-600">₹{Number(p.price).toLocaleString('en-IN')}</span>
+                      <span className="font-black text-blue-600">₹{Number(p.price).toLocaleString('en-IN')}</span>
                     </div>
-                  )) : <div className="px-5 py-4 text-gray-500 font-medium text-[13px] text-center">No products found</div>}
+                  )) : <div className="px-5 py-4 text-slate-500 font-medium text-[13px] text-center">No products found</div>}
                 </div>
               )}
             </div>
@@ -388,36 +393,36 @@ const NewInvoice = () => {
                 onFocus={() => setShowServiceDropdown(true)}
                 onBlur={() => setTimeout(() => setShowServiceDropdown(false), 200)}
                 placeholder="Search by Service Name..."
-                className="w-full pl-12 pr-4 py-3 text-[14px] bg-white border border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all shadow-sm font-medium text-gray-800 placeholder-gray-400"
+                className="w-full pl-12 pr-4 py-2.5 text-[14px] bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all shadow-sm font-medium text-slate-800 placeholder-slate-400"
               />
               {showServiceDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] max-h-60 overflow-y-auto z-50 py-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50 py-2">
                   {isSearchingServices ? (
-                    <div className="px-5 py-4 flex items-center justify-center text-indigo-500">
+                    <div className="px-5 py-4 flex items-center justify-center text-blue-500">
                       <Loader2 size={24} className="animate-spin" />
                     </div>
                   ) : filteredServices.length > 0 ? filteredServices.map(s => (
-                    <div key={s.id} onMouseDown={(e) => { e.preventDefault(); handleSelectService(s); }} className="px-5 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0 flex justify-between items-center transition-colors">
+                    <div key={s.id} onMouseDown={(e) => { e.preventDefault(); handleSelectService(s); }} className="px-5 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 flex justify-between items-center transition-colors">
                       <div>
-                        <p className="font-bold text-gray-800">{s.servicename}</p>
+                        <p className="font-bold text-slate-800">{s.servicename}</p>
                       </div>
-                      <span className="font-black text-indigo-600">₹{((Number(s.servicecost) || 0) + (Number(s.serviceproductcost) || 0)).toLocaleString('en-IN')}</span>
+                      <span className="font-black text-blue-600">₹{((Number(s.servicecost) || 0) + (Number(s.serviceproductcost) || 0)).toLocaleString('en-IN')}</span>
                     </div>
-                  )) : <div className="px-5 py-4 text-gray-500 font-medium text-[13px] text-center">No services found</div>}
+                  )) : <div className="px-5 py-4 text-slate-500 font-medium text-[13px] text-center">No services found</div>}
                 </div>
               )}
             </div>
           </div>
 
           {selectedCustomer && (
-            <div className="px-6 py-4 bg-indigo-50/50 border-b border-indigo-100 flex items-center justify-between">
+            <div className="px-6 py-4 bg-blue-50/50 border-b border-blue-100 flex items-center justify-between">
               <div className="flex items-center gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-[18px] shadow-sm shrink-0">
+                <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-[18px] shadow-sm shrink-0">
                   {selectedCustomer.fullName?.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-gray-900 text-[15px] truncate">{selectedCustomer.fullName}</h3>
-                  <p className="text-[13px] text-gray-500 font-medium mt-0.5 truncate">
+                  <h3 className="font-bold text-slate-900 text-[15px] truncate">{selectedCustomer.fullName}</h3>
+                  <p className="text-[13px] text-slate-500 font-medium mt-0.5 truncate">
                     {selectedCustomer.phoneNumber} {selectedCustomer.city ? `• ${selectedCustomer.city}` : ''}
                   </p>
                 </div>
@@ -433,26 +438,26 @@ const NewInvoice = () => {
 
           <div className="overflow-x-auto flex-1 relative z-0 min-w-0">
             <table className="w-full text-left text-[14px]">
-              <thead className="bg-white border-b-2 border-gray-100 text-[12px] uppercase tracking-wider font-bold text-gray-400">
+              <thead className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider font-bold text-slate-500">
                 <tr>
-                  <th className="px-6 py-5 w-12 text-center">#</th>
-                  <th className="px-6 py-5">Item Details</th>
-                  <th className="px-5 py-5 w-36 text-center">Qty</th>
-                  <th className="px-5 py-5 text-right">Rate</th>
-                  <th className="px-5 py-5 text-center">GST</th>
-                  <th className="px-6 py-5 text-right font-black text-gray-700">Amount</th>
-                  <th className="px-6 py-5 text-center w-16"></th>
+                  <th className="px-6 py-4 w-12 text-center">#</th>
+                  <th className="px-6 py-4">Item Details</th>
+                  <th className="px-5 py-4 w-36 text-center">Qty</th>
+                  <th className="px-5 py-4 text-right">Rate</th>
+                  <th className="px-5 py-4 text-center">GST</th>
+                  <th className="px-6 py-4 text-right font-black text-slate-700">Amount</th>
+                  <th className="px-6 py-4 text-center w-16"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50">
+              <tbody className="divide-y divide-slate-100">
                 {items.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="text-center py-24 text-gray-400 font-medium">
+                    <td colSpan="8" className="text-center py-24 text-slate-400 font-medium">
                       <div className="flex flex-col items-center gap-4">
-                        <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300 shadow-inner">
+                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 shadow-inner">
                           <Search size={32} />
                         </div>
-                        <p className="text-gray-500">No products added. Search and select products above to begin billing.</p>
+                        <p className="text-slate-500">No products added. Search and select products above to begin billing.</p>
                       </div>
                     </td>
                   </tr>
@@ -569,16 +574,16 @@ const NewInvoice = () => {
               <span>₹{roundOff.toFixed(2)}</span>
             </div>
 
-            <div className="flex justify-between items-center pt-6 mt-6 border-t-2 border-gray-800">
-              <span className="text-[14px] font-bold text-gray-500 uppercase tracking-widest">Final Payable Amount</span>
-              <span className="text-4xl font-black text-white">₹{grandTotal.toLocaleString('en-IN')}</span>
+            <div className="flex justify-between items-center pt-6 mt-6 border-t border-slate-700">
+              <span className="text-[14px] font-bold text-slate-400 uppercase tracking-widest">Final Payable Amount</span>
+              <span className="text-4xl font-extrabold text-white">₹{grandTotal.toLocaleString('en-IN')}</span>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 gap-4">
-          <button onClick={handleSaveInvoice} disabled={isSavingInvoice} className="col-span-1 py-4 px-4 rounded-[10px] font-black text-[15px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-[0_8px_24px_rgba(79,70,229,0.25)] hover:shadow-[0_12px_30px_rgba(79,70,229,0.35)] transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-1 disabled:opacity-50 cursor-pointer">
+          <button onClick={handleSaveInvoice} disabled={isSavingInvoice} className="col-span-1 py-4 px-4 rounded-xl font-bold text-[15px] bg-blue-600 text-white hover:bg-blue-700 shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2.5 transform hover:-translate-y-0.5 disabled:opacity-50 cursor-pointer">
             <CheckCircle2 size={20} strokeWidth={2.5} />
             {isSavingInvoice ? 'Saving...' : 'Save & Pay'}
           </button>

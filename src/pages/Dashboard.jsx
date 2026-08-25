@@ -24,25 +24,28 @@ import api from '../utils/api.js';
 
 const StatCard = ({ title, value, icon: Icon, trend, trendLabel, trendUp }) => {
   return (
-    <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_32px_rgba(0,0,0,0.06)] transition-all duration-300 flex flex-col justify-between h-full group">
+    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between h-full group relative overflow-hidden">
+      {/* Corporate Accent Line */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
       <div className="flex justify-between items-start mb-6">
-        <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
-          <Icon size={24} strokeWidth={2.5} />
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-100 transition-colors duration-300">
+          <Icon size={22} strokeWidth={2} />
         </div>
         {trend && (
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-bold ${trendUp ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-            {trendUp ? <ArrowUpRight size={16} strokeWidth={2.5} /> : <ArrowDownRight size={16} strokeWidth={2.5} />}
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[12px] font-bold border ${trendUp ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100'}`}>
+            {trendUp ? <ArrowUpRight size={14} strokeWidth={2.5} /> : <ArrowDownRight size={14} strokeWidth={2.5} />}
             {trend}
           </div>
         )}
       </div>
 
       <div>
-        <p className="text-[14px] font-bold text-slate-500 mb-1 uppercase tracking-wide">{title}</p>
-        <h3 className="text-[32px] font-black tracking-tight text-slate-900 leading-none">{value}</h3>
+        <p className="text-[13px] font-bold text-slate-500 mb-1 uppercase tracking-wider">{title}</p>
+        <h3 className="text-[28px] font-extrabold tracking-tight text-slate-900 leading-none">{value}</h3>
         <div className="flex items-center justify-between mt-5 pt-4 border-t border-slate-100">
           <p className="text-[13px] text-slate-500 font-medium">{trendLabel}</p>
-          <button className="text-slate-400 hover:text-blue-600 transition-colors p-1.5 rounded-xl hover:bg-blue-50">
+          <button className="text-slate-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-slate-50">
             <MoreHorizontal size={18} />
           </button>
         </div>
@@ -52,6 +55,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendLabel, trendUp }) => {
 };
 
 const Dashboard = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
     grossVolume: 0,
     totalRevenue: 0,
@@ -71,10 +75,21 @@ const Dashboard = () => {
         }
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchDashboard();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-bold uppercase tracking-widest text-[12px] animate-pulse">Loading Metrics...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-12 max-w-[1600px] mx-auto pt-2">

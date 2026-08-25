@@ -36,28 +36,28 @@ const NavItem = ({ to, icon: Icon, label, onClick }) => {
         cn(
           "group relative flex items-center justify-between px-3.5 py-3 mb-1.5 rounded-2xl transition-all duration-300 text-[13.5px] font-semibold overflow-hidden",
           isActive
-            ? "text-blue-700 bg-white/60 border border-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.03)] backdrop-blur-md"
-            : "text-slate-500 hover:text-slate-800 hover:bg-white/40"
+            ? "text-white bg-blue-600 shadow-[0_4px_12px_rgba(59,130,246,0.3)] backdrop-blur-md"
+            : "text-slate-400 hover:text-white hover:bg-slate-800/80"
         )
       }
     >
       {({ isActive }) => (
         <>
           {isActive && (
-            <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-r-full shadow-[0_0_8px_rgba(59,130,246,0.4)]" />
+            <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-white/40 rounded-r-full" />
           )}
 
           <div className="flex items-center gap-3.5 z-10 pl-1">
             <div className={cn(
               "flex items-center justify-center transition-all duration-300",
-              isActive ? "text-blue-600" : "text-slate-400 group-hover:text-blue-500"
+              isActive ? "text-white" : "text-slate-500 group-hover:text-blue-400"
             )}>
               <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
             </div>
             <span className="tracking-wide">{label}</span>
           </div>
 
-          {isActive && <ChevronRight size={14} className="text-blue-400 z-10" />}
+          {isActive && <ChevronRight size={14} className="text-white/60 z-10" />}
         </>
       )}
     </NavLink>
@@ -66,9 +66,9 @@ const NavItem = ({ to, icon: Icon, label, onClick }) => {
 
 const NavGroup = ({ title, children }) => (
   <div className="mb-6">
-    <div className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-3">
+    <div className="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-3">
       <span>{title}</span>
-      <div className="h-px bg-slate-200/60 flex-1"></div>
+      <div className="h-px bg-slate-800 flex-1"></div>
     </div>
     <div className="space-y-0.5 px-3">
       {children}
@@ -91,20 +91,21 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen, onLogout }) => {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 w-[260px] shrink-0 bg-gradient-to-br from-blue-50/95 via-white/95 to-indigo-50/95 backdrop-blur-2xl border-r border-indigo-100/50 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) lg:translate-x-0 lg:static lg:inset-auto flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.04)]",
+        "fixed inset-y-0 left-0 z-50 w-[260px] shrink-0 bg-[#0B1120] border-r border-slate-800 transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) lg:translate-x-0 lg:static lg:inset-auto flex flex-col h-full shadow-[4px_0_24px_rgba(0,0,0,0.2)]",
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
 
         {/* Ambient Top Glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-400/10 rounded-full blur-[40px] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-blue-500/10 rounded-full blur-[40px] pointer-events-none"></div>
 
         {/* Header/Logo area */}
-        <div className="relative flex items-center justify-center h-28 px-6 shrink-0 bg-transparent z-10 border-b border-indigo-100/40">
-          <div className="w-44 h-auto drop-shadow-sm transition-transform hover:scale-105 duration-300 flex items-center justify-center">
-            <img src="/app-logo.png" alt="AURO Logo" className="w-full h-full object-contain" />
+        <div className="relative flex items-center justify-center h-28 px-6 shrink-0 bg-transparent z-10 border-b border-slate-800">
+          <div className="w-44 h-auto drop-shadow-sm transition-transform hover:scale-105 duration-300 flex items-center justify-center bg-white/80 p-4 rounded-[0px]">
+            {/* Using a bright/white version of the logo if possible, but keep existing app-logo for now */}
+            <img src="/app-logo.png" alt="AURO Logo" className="w-full h-full object-contain " />
           </div>
 
-          <button onClick={closeMenu} className="absolute right-4 lg:hidden text-slate-400 hover:text-slate-700 transition-colors bg-white/50 p-2 rounded-xl border border-slate-200">
+          <button onClick={closeMenu} className="absolute right-4 lg:hidden text-slate-400 hover:text-white transition-colors bg-slate-800 p-2 rounded-xl border border-slate-700">
             <X size={16} />
           </button>
         </div>
@@ -150,8 +151,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen, onLogout }) => {
         </div>
 
         {/* Footer Area */}
-        <div className="p-5 shrink-0 relative z-10 border-t border-indigo-100/40 bg-white/20 backdrop-blur-md">
-          <button onClick={onLogout} className="flex items-center justify-between px-4 py-3.5 w-full rounded-2xl text-[13.5px] font-bold text-slate-500 hover:bg-white hover:text-rose-600 border border-transparent hover:border-rose-100 hover:shadow-sm transition-all group">
+        <div className="p-5 shrink-0 relative z-10 border-t border-slate-800 bg-[#0B1120] backdrop-blur-md">
+          <button onClick={onLogout} className="flex items-center justify-between px-4 py-3.5 w-full rounded-2xl text-[13.5px] font-bold text-slate-400 hover:bg-slate-800 hover:text-rose-400 border border-transparent hover:border-rose-900/50 hover:shadow-sm transition-all group">
             <div className="flex items-center gap-3">
               <LogOut size={18} className="group-hover:-translate-x-1 transition-transform duration-300" />
               <span>Sign Out</span>
