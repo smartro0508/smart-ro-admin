@@ -15,6 +15,7 @@ const InvoiceList = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState('All');
 
   const currentDate = new Date();
   const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString().split('T')[0];
@@ -550,6 +551,14 @@ const InvoiceList = () => {
     }
   ];
 
+  const filteredInvoices = invoices.filter(inv => {
+    if (selectedType === 'All') return true;
+    const isGst = inv.isGstApplied === true || inv.isGstApplied === 'true' || inv.isGstApplied === 1;
+    if (selectedType === 'GST') return isGst;
+    if (selectedType === 'Non-GST') return !isGst;
+    return true;
+  });
+
   return (
     <div className="max-w-[1600px] mx-auto pb-10 pt-2">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
@@ -559,6 +568,18 @@ const InvoiceList = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+            {['All', 'GST', 'Non-GST'].map(type => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type)}
+                className={`px-4 py-1.5 rounded-lg text-[13px] font-bold transition-all ${selectedType === type ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+
           <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
             <input
               type="date"
@@ -579,7 +600,7 @@ const InvoiceList = () => {
 
       <DataTable
         columns={columns}
-        data={invoices}
+        data={filteredInvoices}
         searchPlaceholder="Search by Invoice ID or Customer..."
         isLoading={isFetching} />
 
