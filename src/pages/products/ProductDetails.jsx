@@ -74,7 +74,6 @@ const ProductDetails = () => {
     return {};
   };
 
-  const features = safeParseArray(product.features);
   const specifications = safeParseObject(product.specifications);
   const images = safeParseArray(product.images);
 
@@ -159,22 +158,7 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {(features && features.length > 0) && (
-            <div className={cardClass}>
-              <div className="flex items-center gap-2 mb-6">
-                <CheckCircle size={20} className="text-emerald-500" />
-                <h2 className="text-[16px] font-extrabold text-slate-900">Key Features</h2>
-              </div>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2 text-[14px] text-slate-700 font-medium">
-                    <CheckCircle size={16} className="text-emerald-500 mt-0.5 flex-shrink-0" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+
         </div>
 
         <div className="flex flex-col gap-6">

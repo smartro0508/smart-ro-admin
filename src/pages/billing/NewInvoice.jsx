@@ -59,7 +59,7 @@ const NewInvoice = () => {
     setIsSearchingProducts(true);
     const searchProducts = async () => {
       try {
-        const res = await api.post('/invoice-products/search', { q: productSearch });
+        const res = await api.post('/products/search', { q: productSearch });
         if (res.data?.data) setProducts(res.data.data);
       } catch (err) {
         console.error('Product search error', err);
@@ -82,7 +82,7 @@ const NewInvoice = () => {
     setIsSearchingServices(true);
     const searchServices = async () => {
       try {
-        const res = await api.post('/invoice-services/search', { q: serviceSearch });
+        const res = await api.post('/services/search', { q: serviceSearch });
         if (res.data?.data) setServices(res.data.data);
       } catch (err) {
         console.error('Service search error', err);

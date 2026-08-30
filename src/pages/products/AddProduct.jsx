@@ -24,9 +24,6 @@ const AddProduct = () => {
           const res = await api.post(`/products/get/${id}`);
           if (res.data?.data) {
             const data = res.data.data;
-            if (typeof data.features === 'string') {
-              try { data.features = JSON.parse(data.features); } catch (e) { }
-            }
             if (typeof data.specifications === 'string') {
               try { data.specifications = JSON.parse(data.specifications); } catch (e) { }
             }
@@ -75,9 +72,6 @@ const AddProduct = () => {
     setIsLoading(true);
     try {
       const formData = new FormData(e.target);
-
-      const features = e.target.featuresInput.value.split('\n').filter(Boolean);
-      formData.set('features', JSON.stringify(features));
 
       const specsRaw = e.target.specsInput.value.split('\n').filter(Boolean);
       const specifications = {};
@@ -186,12 +180,8 @@ const AddProduct = () => {
           </div>
 
           <div className={cardClass}>
-            <h2 className="text-[16px] font-extrabold text-slate-900 mb-6">Features & Specifications</h2>
+            <h2 className="text-[16px] font-extrabold text-slate-900 mb-6">Specifications</h2>
             <div className="grid grid-cols-1 gap-5">
-              <div>
-                <label className={labelClass}>Key Features (One per line)</label>
-                <textarea name="featuresInput" defaultValue={product?.features ? product.features.join('\n') : ''} className={textareaClass} placeholder="e.g. 7-stage purification\nCopper enriched"></textarea>
-              </div>
               <div>
                 <label className={labelClass}>Technical Specifications (Format: Key: Value)</label>
                 <textarea name="specsInput" defaultValue={product?.specifications ? Object.entries(product.specifications).map(([k, v]) => `${k}: ${v}`).join('\n') : ''} className={textareaClass} placeholder="e.g. Capacity: 10 Liters\nWeight: 8 kg"></textarea>
