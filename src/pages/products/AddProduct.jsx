@@ -174,7 +174,7 @@ const AddProduct = () => {
               </div>
               <div>
                 <label className={labelClass}>Selling Price (₹)</label>
-                <input type="number" name="price" defaultValue={product?.price || ''} className={`${inputClass} font-bold`} placeholder="0.00" required />
+                <input type="number" name="price" defaultValue={product?.price || ''} className={`${inputClass} font-bold`} placeholder="0.00" />
               </div>
             </div>
           </div>
